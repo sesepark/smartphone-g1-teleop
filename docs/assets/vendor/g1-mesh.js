@@ -1,4 +1,6 @@
-/* Official Unitree visual geometry; all motion comes from existing G1 body FK. */
+/* Official Unitree visual geometry; all motion comes from existing G1 body FK.
+   From the team's estimation-server viewer, GPL-3.0; per-limb tints added for this page.
+   Mesh data: g1-mesh-data.js, BSD-3-Clause Unitree Robotics (UNITREE-LICENSE.txt). */
 (() => {
   const states = new WeakMap();
   // A canvas with data-theme="dark" is transparent over its CSS backdrop and adds
@@ -97,8 +99,9 @@
       const j=s.bodies[k];if(j<0)return;
       gl.uniform4fv(u.quat,r.body_quat_w[j]);gl.uniform3fv(u.position,r.body_pos_w[j]);
       const active=g.limb&&meta.enabled_limbs?.[g.limb];
-      gl.uniform3fv(u.color,active?g.tint:g.rgb);
-      if(dark){if(active)gl.uniform3f(u.glow,.16,.36,1);else gl.uniform3f(u.glow,0,0,0);}
+      const limbTint=active&&meta.limb_tints?.[g.limb];  // optional per-limb colour (paper companion page)
+      gl.uniform3fv(u.color,limbTint?limbTint.color:active?g.tint:g.rgb);
+      if(dark){if(limbTint)gl.uniform3fv(u.glow,limbTint.glow);else if(active)gl.uniform3f(u.glow,.16,.36,1);else gl.uniform3f(u.glow,0,0,0);}
       buffer(g.buffer);gl.drawArrays(gl.TRIANGLES,0,g.count);
     });
     canvas.dataset.geometry='unitree-official-mesh';

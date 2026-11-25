@@ -11,7 +11,7 @@ echo "Checklist: gantry attached, dedicated E-stop operator at the physical stop
 echo "1.5 m area clear, Studio tracking with calibration done, video recording started."
 read -r -p "Type REAL to start the physical controller: " answer
 [ "$answer" = REAL ] || { echo "Cancelled."; exit 1; }
-export LD_LIBRARY_PATH=~/.local/opt/TensorRT-<lan-ip-2>/lib:/usr/local/cuda-12.9/lib64:/opt/onnxruntime/lib
+export LD_LIBRARY_PATH=~/.local/opt/TensorRT-10.13.3.9/lib:/usr/local/cuda-12.9/lib64:/opt/onnxruntime/lib
 cd "$HOME/shape-msi/source-live-1121"
 PYTHONPATH="$PWD/src" "$HOME/SHAPE_g1_airpots/.venv/bin/python" -m g1_airpots sonic-controller \
   --repo ~/shape/SONIC/sonic --mode real --interface enp4s0 --prebuilt \

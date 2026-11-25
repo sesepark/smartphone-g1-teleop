@@ -112,16 +112,19 @@ def main():
     stop_sequence = dict(last_frame_s=round(gap_at, 3), frame_gap_s=round(gap, 3), reset_s=round(gap_at + gap, 3),
                          pause_start_s=round(long_pause['start_monotonic'] - t_on, 3),
                          pause_s=round(long_pause['seconds'], 3), watchdog_s=WATCHDOG_S,
+                         pause_end_s=round(long_pause['end_monotonic'] - t_on, 3),
                          stop_s=round(t_stop - t_on, 3), last_received_s=round(t_last - t_on, 3))
 
-    # Ten-second windows inside the robot window: frame rate and p95 estimation latency.
-    windows = []
-    start = 0.0
+    # Full ten-second windows inside the robot window, then the remainder before the stop.
+    def stats(a, b):
+        inside = [l for t, l in zip(all_t, all_lat) if a <= t < b and l is not None]
+        return dict(start_s=round(a, 1), end_s=round(b, 1), frames_per_s=round(len(inside) / (b - a), 1),
+                    latency_p95_ms=round(percentile(inside, 95), 1))
+    windows, start = [], 0.0
     while start + 10 <= t_last - t_on:
-        inside = [l for t, l in zip(all_t, all_lat) if start <= t < start + 10 and l is not None]
-        windows.append(dict(start_s=round(start, 1), frames_per_s=round(len(inside) / 10, 1),
-                            latency_p95_ms=round(percentile(inside, 95), 1)))
+        windows.append(stats(start, start + 10))
         start += 10
+    tail = stats(start, t_last - t_on)
     robot = session['robot']
     meta = dict(
         source='data/runs/20261122-174632-live-three-phone-dev',
@@ -132,18 +135,20 @@ def main():
         active_joint_mask=mask,
         robot=dict(body_names=robot['body_names'], enabled_limbs=robot['enabled_limbs']),
         time_zero='robot streaming start (controller CONTROL, first received frame)',
-        robot_window_s=round(t_last - t_on, 2), auto_stop_s=round(t_stop - t_on, 2),
+        robot_window_s=round(t_last - t_on, 2),
+        auto_stop_s=round(t_stop - t_on, 2),  # inferred: start of the long pause + 0.5 s watchdog timeout
         publication_pauses=[dict(start_s=round(p['start_monotonic'] - t_on, 3), seconds=round(p['seconds'], 3))
                             for p in sorted(sonic['recent_pauses'], key=lambda p: p['start_monotonic'])],
         model_resets_s=resets,
         stop_sequence=stop_sequence,
         latency_window_10s=windows,
+        latency_tail=tail,
         series=series)
     out.mkdir(parents=True, exist_ok=True)
     (out / 'run7.bin').write_bytes(poses.tobytes())
     (out / 'run7.json').write_text(json.dumps(meta, separators=(',', ':')))
     print(f'{n} frames, {len(poses) * 2 / 1e6:.1f} MB poses, robot window {t_last - t_on:.1f} s, '
-          f'auto stop {t_stop - t_on:.2f} s, {len(windows)} ten-second windows')
+          f'auto stop {t_stop - t_on:.2f} s, {len(windows)} ten-second windows, tail {tail}')
 
 
 if __name__ == '__main__':

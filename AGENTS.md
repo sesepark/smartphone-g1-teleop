@@ -4,7 +4,7 @@
 
 - Public companion to the KRoC 2027 paper "Hand-Held Smartphone Teleoperation of a G1 Humanoid Upper Body" (An, Kang, Park). It holds logs, figures, the web replay in `docs/` (GitHub Pages) and the scripts that recompute the paper's numbers.
 - The submitted manuscript is final. Do not edit the paper or change numbers here to differ from it. If a log disagrees with the paper, report it; do not "fix" either side silently.
-- `paper/` holds the manuscript PDF as sent to the team on 2026-11-25 (final text plus one repository sentence at the end of Sec. 6). Replace it only with a version the authors sent; keep it and the figures out of the CC BY license.
+- `paper/` holds the manuscript PDF as sent to the team on 2026-11-25 (final text plus one repository sentence at the end of Sec. 6). Replace it only with a version the authors sent; keep it and the figure images out of the open licenses (see data/LICENSE.md).
 - The system code (phone apps, estimation server, SONIC bridge) lives in the team's private repository. Do not copy it here without the team's agreement.
 
 ## Data rules

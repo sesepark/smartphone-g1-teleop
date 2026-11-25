@@ -23,9 +23,11 @@ import sys
 from pathlib import Path
 
 UUID = re.compile(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}')
-IPV4 = re.compile(r'(?<![\d.])(\d{1,3}(?:\.\d{1,3}){3})(?![\d.])')
+# Not preceded or followed by a word character, dot or hyphen, so version strings such as
+# TensorRT-10.13.3.9 stay intact.
+IPV4 = re.compile(r'(?<![\w.-])(\d{1,3}(?:\.\d{1,3}){3})(?![\w.-])')
 KEEP_IP = {'127.0.0.1', '0.0.0.0'}
-HOME = re.compile(r'/home/[A-Za-z0-9_.-]+')
+HOME = re.compile(r'/(?:home|Users)/[A-Za-z0-9_.-]+|/root\b')
 
 RUNS = {
     # 1st demonstration: one iOS phone in the right hand (2026-11-21).
@@ -97,7 +99,7 @@ class Scrubber:
             self.ips.setdefault(a, f'<lan-ip-{len(self.ips) + 1}>')
             return self.ips[a]
         s = IPV4.sub(ip, s)
-        # Any remaining UUID (should not occur outside raw packets) becomes a neutral token.
+        # Any UUID left after the packet fields were renamed becomes a neutral token.
         return UUID.sub(lambda m: self.pseudonym(m.group(0), 'id'), s)
 
     def packet(self, p):
@@ -122,7 +124,7 @@ def raw_lines(src, scrub):
         d = json.loads(line)
         if isinstance(d.get('packet'), dict):
             scrub.packet(d['packet'])
-        out.append(json.dumps(d, separators=(', ', ': ')))
+        out.append(scrub.text(json.dumps(d, separators=(', ', ': '))))
     return ('\n'.join(out) + '\n').encode()
 
 
@@ -176,6 +178,14 @@ def main():
     (out.parent / 'pseudonyms.json').write_text(json.dumps(dict(
         note='Original identifiers are withheld; only the pseudonym list and counts are published.',
         identifiers=sorted(set(scrub.ids.values())), lan_ip_placeholders=sorted(scrub.ips.values())), indent=2) + '\n')
+    # Refuse to finish if anything that looks like an identifier survived.
+    leak = re.compile(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
+                      r'|/(?:home|Users)/[A-Za-z]|(?<![\w.-])(?:10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2})(?![\w.-])'
+                      r'|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}')
+    for f in sorted(p for p in out.parent.rglob('*') if p.is_file() and p.name != 'SHA256SUMS'):
+        body = lzma.open(f, 'rt', errors='replace').read() if f.suffix == '.xz' else f.read_text(errors='replace')
+        hits = [m.group(0) for m in leak.finditer(body) if not m.group(0).startswith('192.168.123.')]
+        assert not hits, f'{f}: {hits[:5]}'
     sums = []
     for f in sorted(p for p in out.parent.rglob('*') if p.is_file() and p.name != 'SHA256SUMS'):
         sums.append(f'{hashlib.sha256(f.read_bytes()).hexdigest()}  {f.relative_to(out.parent)}')

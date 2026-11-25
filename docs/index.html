@@ -60,7 +60,18 @@ h2{font-size:22px;letter-spacing:-.01em;margin:0 0 6px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .controls button.play{color:#0f1115}}
 .time{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:14px;margin-left:auto}
 .seek{width:100%;margin:0;accent-color:var(--accent)}
-.seekrow{padding:4px 16px 0}
+.band{position:relative;height:8px;margin:2px 0 0;border-radius:4px;overflow:hidden;background:var(--line-soft)}
+.band i{position:absolute;top:0;bottom:0}
+.band .tick{width:2px;background:var(--ink)}
+.armkey{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;padding:8px 16px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line-soft)}
+.armkey>span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px}
+.now{padding:0 16px 8px;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.events{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px}
+.events button{font:inherit;font-size:13px;min-height:36px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:0 12px;cursor:pointer}
+.events button b{font-variant-numeric:tabular-nums;color:var(--accent);margin-right:6px}
+.events button.stopev b{color:#c0392b}
+.seekrow{padding:8px 16px 0}
 .chart{display:block;width:100%;height:250px;cursor:crosshair}
 .chartwrap{padding:6px 8px 4px;border-top:1px solid var(--line-soft)}
 .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);padding:0 16px 14px}
@@ -98,7 +109,7 @@ footer{padding:36px 0 48px;color:var(--muted);font-size:13px;border-top:1px soli
 .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--stage-ink);font-size:14px}
 .split>*,.files>*,.facts>*,.views>*{min-width:0}
 @media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:minmax(0,1fr)}.files{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:680px){.views{grid-template-columns:1fr}.view+.view{border-left:0;border-top:1px solid rgba(255,255,255,.08)}.view canvas{height:300px}.chart{height:220px}.time{margin-left:0;width:100%}header.top{padding:28px 0 22px}.elbowctl label{grid-template-columns:90px 1fr 60px}th{white-space:normal}th,td{padding:8px 6px;font-size:13px}}
+@media (max-width:680px){.views{grid-template-columns:1fr}.view+.view{border-left:0;border-top:1px solid rgba(255,255,255,.08)}.view canvas{height:300px}.chart{height:220px}.time{margin-left:0;width:100%}header.top{padding:28px 0 22px}.elbowctl label{grid-template-columns:90px 1fr 60px}th{white-space:normal}th,td{padding:8px 6px;font-size:13px}.chip{top:auto;bottom:12px}.fact strong{font-size:19px}}
 </style>
 </head>
 <body>
@@ -113,7 +124,7 @@ footer{padding:36px 0 48px;color:var(--muted);font-size:13px;border-top:1px soli
     </div>
     <h1 data-ko="손에 든 스마트폰으로 G1 휴머노이드 상체 원격조작">Hand-Held Smartphone Teleoperation of a G1 Humanoid Upper Body</h1>
     <p class="authors" data-ko="안상현 · 강재욱 · 박세환 · 서울대학교">Sanghyun An · Jae Wook Kang · Sehwan Park · Seoul National University</p>
-    <p class="lede" data-ko="스마트폰 3대(양손 2대, 허리 벨트 1대)의 IMU만으로 갠트리에 매단 실물 Unitree G1의 상체를 실시간으로 원격조작했습니다. 이 페이지에서 그 실행의 기록을 재생하고, 논문의 수치를 공개 로그와 대조할 수 있습니다.">We teleoperated the upper body of a real, gantry-supported Unitree G1 in real time with only three smartphones: two in the hands and one on the belt. This page replays the recording of that run and connects the numbers in the paper to the published logs.</p>
+    <p class="lede" data-ko="휴머노이드 원격조작과 시범 데이터 수집에 필요한 VR 헤드셋이나 모션캡처 수트를 누구나 가진 스마트폰으로 대신하는 것이 목표입니다. 그 첫 단계로 양손에 하나씩, 허리 벨트에 하나 둔 폰 3대로 갠트리에 매단 실물 Unitree G1의 상체를 실시간으로 원격조작했습니다. 이 페이지는 그 실행을 기록 그대로 재생합니다.">Our goal is to let ordinary smartphones stand in for the VR headsets and motion-capture suits that humanoid teleoperation and demonstration collection need today. As a first step, three phones, one in each hand and one on the belt, teleoperated the upper body of a real, gantry-supported Unitree G1 in real time. This page replays that run from its logs.</p>
     <div class="links">
       <a class="primary" href="#replay" data-ko="실행 재생">Replay the run</a>
       <a href="https://github.com/sesepark/smartphone-g1-teleop/blob/main/paper/KRoC2027_handheld_smartphone_G1_teleoperation.pdf" data-ko="논문 PDF">Paper (PDF)</a>
@@ -127,43 +138,48 @@ footer{padding:36px 0 48px;color:var(--muted);font-size:13px;border-top:1px soli
 <main class="wrap">
 <section id="replay">
   <h2 data-ko="실물 G1, 폰 3대 실행 재생 (2026-11-22, 마지막 실행)">Three-phone run on the real G1 (2026-11-22, last run)</h2>
-  <p class="sub" data-ko="왼쪽은 폰 3대의 입력으로 IMUCoCo가 추정한 사람 자세, 오른쪽은 SONIC 정책에 보낸 G1 목표 자세입니다. 둘 다 추정 서버가 60 frames/s로 기록한 값이고, 여기서는 30 frames/s로 재생합니다. 로봇의 실제 관절을 측정한 값이 아니며, 로봇이 따라 움직인 것은 현장 영상으로 확인했습니다. 화면을 끌면 돌아가고, 두 손가락이나 Ctrl + 휠로 확대합니다.">Left: the human pose that IMUCoCo estimated from the three phones. Right: the G1 target pose sent to the SONIC policy. Both were recorded by the estimation server at 60 frames/s and are replayed here at 30 frames/s. They are not measurements of the robot's joints; that the robot followed was confirmed on video. Drag a view to rotate it; pinch or Ctrl + scroll to zoom.</p>
+  <p class="sub" data-ko="조작자가 양손과 허리 벨트에 폰을 하나씩 두고 움직인 약 4분짜리 기록입니다. 폰 입력으로 추정한 사람 자세(왼쪽)를 팀이 만든 IK가 G1 목표 자세(오른쪽)로 바꿔 SONIC 정책에 보냈습니다. 둘 다 추정 서버가 기록한 값이며 로봇 관절을 측정한 값은 아닙니다. 로봇이 따라 움직인 것은 현장 영상으로 확인했습니다.">About four minutes recorded while the operator moved with one phone in each hand and one on the belt. The human pose estimated from the phones (left) was turned into a G1 target pose (right) by the team's IK and sent to the SONIC policy. Both are what the estimation server recorded, not measurements of the robot's joints; that the robot followed was confirmed on video.</p>
   <div class="card stage">
     <div class="views">
       <div class="view">
-        <div class="vlabel"><strong data-ko="추정한 사람 자세">Estimated human pose</strong><span data-ko="IMUCoCo · 폰 3대 IMU">IMUCoCo · three phone IMUs</span></div>
+        <div class="vlabel"><strong data-ko="① 추정한 사람 자세">① Estimated human pose</strong><span data-ko="폰 3대(L·R·P) → IMUCoCo">three phones (L, R, P) → IMUCoCo</span></div>
         <canvas id="human" aria-label="Estimated human pose"></canvas>
         <div class="loading" id="loading" data-ko="기록을 불러오는 중…">Loading the recording…</div>
       </div>
       <div class="view">
-        <div class="vlabel"><strong data-ko="G1 목표 자세">G1 target pose</strong><span data-ko="SONIC에 보낸 목표 · 팔만 갱신">sent to SONIC · arms only</span></div>
+        <div class="vlabel"><strong data-ko="② G1 목표 자세">② G1 target pose</strong><span data-ko="방향 IK → SONIC으로 전송 · 팔만 갱신">direction IK → sent to SONIC · arms only</span></div>
         <span class="chip" id="chip"></span>
         <canvas id="robot" data-theme="dark" aria-label="G1 target pose"></canvas>
       </div>
     </div>
-    <div class="seekrow"><input class="seek" id="seek" type="range" min="0" max="0" value="0" aria-label="Time"></div>
+    <div class="armkey"><span><b class="sw" style="background:var(--left)"></b><span data-ko="왼팔">Left arm</span></span><span><b class="sw" style="background:var(--right)"></b><span data-ko="오른팔">Right arm</span></span><span data-ko="그래프와 같은 색 · 끌어서 회전, 두 손가락이나 Ctrl + 휠로 확대">same colors as the chart · drag to rotate, pinch or Ctrl + scroll to zoom</span></div>
+    <div class="seekrow">
+      <input class="seek" id="seek" type="range" min="0" max="0" value="0" aria-label="Time">
+      <div class="band" id="band" aria-hidden="true"></div>
+    </div>
     <div class="controls">
       <button type="button" class="play" id="play" data-ko="재생">Play</button>
       <select id="speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
-      <button type="button" id="tostop" data-ko="자동 정지 직전으로">Jump to the automatic stop</button>
       <span class="time" id="time"></span>
     </div>
+    <div class="now" id="now"></div>
+    <div class="events" id="events"></div>
     <div class="chartwrap"><canvas class="chart" id="chart" aria-label="Arm elevation targets and estimation latency over time"></canvas></div>
     <div class="legend">
       <span><i style="border-color:var(--left)"></i><span data-ko="왼팔 고도 목표">Left arm elevation target</span></span>
       <span><i style="border-color:var(--right);border-top-style:dashed"></i><span data-ko="오른팔 고도 목표">Right arm elevation target</span></span>
       <span><i style="border-color:var(--chart-ink);border-top-width:1px"></i><span data-ko="추정 지연(입력 샘플 시각 → 추정 완료)">Estimation latency (sample time to finished estimate)</span></span>
-      <span><i style="border-color:var(--chart-ink);border-top-style:dotted"></i><span data-ko="자동 정지 · 회색: 로봇이 목표를 받지 않은 구간 · 그래프를 누르면 그 시점으로 이동">Automatic stop · gray: robot not receiving targets · click to jump</span></span>
+      <span><i style="border-color:var(--chart-ink);border-top-style:dotted"></i><span data-ko="자동 정지 · 회색: 로봇이 목표를 받지 않은 구간(재생 막대 아래 초록 띠: 받은 구간) · 그래프를 누르면 그 시점으로 이동">Automatic stop · gray: robot not receiving targets (green strip under the slider: receiving) · click to jump</span></span>
     </div>
   </div>
 
   <div class="facts">
-    <div class="card fact"><small data-ko="로봇이 목표를 받은 구간">Robot received targets for</small><strong id="f-window">–</strong><small data-ko="컨트롤러 로그 기준">from the controller log</small></div>
-    <div class="card fact"><small data-ko="10 s 구간 처리율">Throughput, 10 s windows</small><strong id="f-fps">–</strong><small id="f-nwin" data-ko="로봇 구간의 10 s 구간 16개">16 windows inside the robot window</small></div>
-    <div class="card fact"><small data-ko="10 s 구간 추정 지연 p95">Estimation latency p95, 10 s windows</small><strong id="f-lat">–</strong><small data-ko="SONIC 참조 지연 0.35 s 제외">excludes SONIC's 0.35 s reference delay</small></div>
-    <div class="card fact"><small data-ko="자동 정지 직전 전송 중단">Transmission pause before the stop</small><strong id="f-pause">–</strong><small data-ko="watchdog 0.5 s 초과 → 정지">over the 0.5 s watchdog → stop</small></div>
+    <div class="card fact"><small data-ko="로봇이 목표를 받은 구간">Robot received targets for</small><strong id="f-window">–</strong><small data-ko="컨트롤러 로그의 프레임 번호를 50 Hz 전송 시간축에 대응">controller frame indices mapped onto the 50 Hz send timeline</small></div>
+    <div class="card fact"><small data-ko="처리율, 0–160 s의 10 s 구간">Throughput, 10 s windows, 0–160 s</small><strong id="f-fps">–</strong><small id="f-fps-tail"></small></div>
+    <div class="card fact"><small data-ko="추정 지연 p95, 0–160 s의 10 s 구간">Estimation latency p95, 10 s windows, 0–160 s</small><strong id="f-lat">–</strong><small id="f-lat-tail"></small></div>
+    <div class="card fact"><small data-ko="정지 때의 전송 중단">Transmission pause at the stop</small><strong id="f-pause">–</strong><small id="f-pause-span"></small></div>
   </div>
-  <p class="note" data-ko="논문의 60.0 frames/s와 추정 지연 p95 114 ms는 실행 중 Studio가 2분 38초 시점의 10 s 구간에서 보여 준 값입니다. 위 카드는 같은 기록(motion.jsonl)에서 로봇 구간을 10 s씩 나눠 다시 계산한 사후 분석이라 그 값과 정확히 같지는 않습니다.">The paper's 60.0 frames/s and 114 ms p95 latency are the values the Studio showed for the 10 s window at 2 min 38 s during the run. The cards above are a post-hoc recomputation from the same recording (motion.jsonl), splitting the robot window into 10 s windows, so they need not match those values exactly.</p>
+  <p class="note" data-ko="카드는 공개 기록(motion.jsonl)으로 사후에 다시 계산한 값입니다. 논문의 60.0 frames/s와 추정 지연 p95 114 ms는 실행 중 추정 서버가 계산해 2분 38초 시점의 10 s 구간에 대해 읽은 값(현장 기록)이며, 그때 노트북의 웹 창은 닫혀 있었습니다. 추정 지연은 폰 입력 샘플 시각부터 사람 자세 추정이 끝날 때까지이고, SONIC 참조 지연 0.35 s와 로봇의 반응은 포함하지 않으므로 전체 원격조작 지연이 아닙니다.">The cards are recomputed after the fact from the published recording (motion.jsonl). The paper's 60.0 frames/s and 114 ms p95 are what the estimation server computed during the run for the 10 s window at 2 min 38 s (field log), with the laptop's web window closed. Estimation latency runs from the phone sample time to the finished pose estimate; it leaves out SONIC's 0.35 s reference delay and the robot's response, so it is not the end-to-end teleoperation latency.</p>
   <ol class="stop" id="stoplist"></ol>
   <figure class="card photo">
     <img src="assets/fig2_real_g1.jpg" alt="Phone placement and the three-phone demonstration with the G1 on a gantry" loading="lazy">
@@ -185,14 +201,14 @@ footer{padding:36px 0 48px;color:var(--muted);font-size:13px;border-top:1px soli
     </div>
     <div>
       <div class="eq">θ = arccos( (d² − l<sub>u</sub>² − l<sub>f</sub>²) / (2 l<sub>u</sub> l<sub>f</sub>) ),&nbsp; d = ‖p<sub>w</sub> − p<sub>s</sub>‖</div>
-      <p class="sub" data-ko="실물 실행은 IMU 경로만 썼고, 이 AR 결합은 녹화한 한 팔 개발 데이터 3건의 사후 재생에서만 평가했습니다(예비 결과). 팔 고도각 오차는 3건 중 2건에서 줄었고, 손목 jerk p95는 1.3–3.3배 늘어 사전에 정한 10% 한도를 넘었습니다.">The robot runs used the IMU path only. This AR coupling was evaluated offline, by replaying three one-arm development recordings (preliminary). The arm-elevation error fell in two of the three; wrist jerk p95 rose 1.3- to 3.3-fold, above the 10% bound fixed in advance.</p>
+      <p class="sub" data-ko="실물 실행은 IMU 경로만 썼고, 이 AR 결합은 녹화한 한 팔 개발 데이터 3건의 사후 재생에서만 평가했습니다(예비 결과). 팔 고도각 오차는 3건 중 2건에서 줄었고, 녹화 2는 기록된 AR 입력으로는 오히려 늘었습니다. 손목 jerk p95는 1.3–3.3배 늘어 폰 3대 비교용으로 미리 정한 10% 한도를 넘었습니다.">The robot runs used the IMU path only. This AR coupling was evaluated offline, by replaying three one-arm development recordings (preliminary). The arm-elevation error fell in two of the three; in recording 2 it rose with the AR input as recorded. Wrist jerk p95 rose 1.3- to 3.3-fold, above the 10% bound fixed in advance for a three-phone test.</p>
       <div class="card tablewrap">
         <table>
           <thead><tr><th data-ko="녹화">Rec.</th><th data-ko="조건">Condition</th><th data-ko="고도각 오차 (°)">Elev. error (°)</th><th data-ko="jerk p95 팔꿈치 / 손목 (m/s³)">Jerk p95 elbow / wrist (m/s³)</th></tr></thead>
           <tbody id="t1"></tbody>
         </table>
       </div>
-      <p class="note" data-ko="값은 data/one-arm-replay/metrics.csv에서 반올림했습니다. 2 (recomp.)는 녹화 당시 거부된 AR 입력을 같은 타임스탬프에서 다시 계산한 경우입니다.">Values are rounded from data/one-arm-replay/metrics.csv. "2 (recomp.)" uses the AR input recomputed at the same timestamps after it had been rejected during recording.</p>
+      <p class="note" data-ko="값은 data/one-arm-replay/metrics.csv에서 반올림했습니다. 녹화 2는 당시 AR 추적 복구가 거부되어 AR 입력이 일부 구간에만 들어갔습니다. 2 (recomp.)는 그 입력을 같은 타임스탬프에서 다시 계산한 경우입니다.">Values are rounded from data/one-arm-replay/metrics.csv. In recording 2, AR tracking recovery was rejected during recording, so the AR input reached only part of the run; "2 (recomp.)" recomputes that input at the same timestamps.</p>
     </div>
   </div>
 </section>
@@ -208,7 +224,7 @@ footer{padding:36px 0 48px;color:var(--muted);font-size:13px;border-top:1px soli
     </div>
     <div class="card file">
       <h3 data-ko="1차 시연 · 오른손 폰 1대 (11/21)">1st demonstration · one phone, right hand (11/21)</h3>
-      <p data-ko="폰 원시 패킷, 프레임별 지연과 G1 팔 목표, 컨트롤러 로그, 앱을 닫은 뒤의 자동 정지(0.976 s) 기록.">Raw phone packets, per-frame latency and G1 arm targets, controller logs and the automatic stop 0.976 s after the app was closed.</p>
+      <p data-ko="폰 원시 패킷, 프레임별 지연과 G1 팔 목표, 컨트롤러 로그, 앱을 닫았을 때 마지막 입력 수신부터 정지 명령 전송까지 0.976 s였던 기록.">Raw phone packets, per-frame latency and G1 arm targets, controller logs, and the app-closure stop: 0.976 s from the last received input to the stop command.</p>
       <a href="https://github.com/sesepark/smartphone-g1-teleop/tree/main/data/runs/20261121-215716-g1-supported-one-iphone">data/runs/20261121-215716-…</a>
     </div>
     <div class="card file">
@@ -226,7 +242,7 @@ python3 tools/check_paper_numbers.py</pre>
 
 <footer>
   <div class="wrap">
-    <p data-ko="G1 형상: Unitree Robotics의 unitree_mujoco 메시를 단순화(BSD-3-Clause). 사람 자세 모델: IMUCoCo(GPL-3.0), 전신 정책: NVIDIA SONIC. 이 페이지의 코드는 GPL-3.0, 기록 데이터는 CC BY 4.0이고, 논문과 그림은 저자에게 저작권이 있습니다.">G1 geometry: simplified meshes from Unitree Robotics' unitree_mujoco (BSD-3-Clause). Human pose model: IMUCoCo (GPL-3.0); whole-body policy: NVIDIA SONIC. Page code is GPL-3.0, the recorded data CC BY 4.0; the paper and its figures remain © the authors.</p>
+    <p data-ko="G1 형상: Unitree Robotics의 unitree_mujoco 메시를 단순화(BSD-3-Clause). 사람 자세 모델: IMUCoCo(GPL-3.0), 전신 정책: NVIDIA SONIC. 이 페이지의 코드는 GPL-3.0, 기록 데이터는 CC BY-NC 4.0이고, 논문과 그림은 저자에게 저작권이 있습니다. <a href=&quot;https://github.com/sesepark/smartphone-g1-teleop/blob/main/data/LICENSE.md&quot;>라이선스</a> · <a href=&quot;https://github.com/sesepark/smartphone-g1-teleop/blob/main/THIRD_PARTY.md&quot;>외부 구성요소 고지</a>">G1 geometry: simplified meshes from Unitree Robotics' unitree_mujoco (BSD-3-Clause). Human pose model: IMUCoCo (GPL-3.0); whole-body policy: NVIDIA SONIC. Page code is GPL-3.0, the recorded data CC BY-NC 4.0; the paper and its figures remain © the authors. <a href="https://github.com/sesepark/smartphone-g1-teleop/blob/main/data/LICENSE.md">Licenses</a> · <a href="https://github.com/sesepark/smartphone-g1-teleop/blob/main/THIRD_PARTY.md">third-party notices</a></p>
   </div>
 </footer>
 

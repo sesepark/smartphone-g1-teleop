@@ -21,15 +21,23 @@ const T = {
   stop: {en: 'auto stop', ko: '자동 정지'},
   stops: {
     en: q => [
-      `${q.last_frame_s.toFixed(2)} s: the last estimate frame before the stop. The robot received its last target at ${q.last_received_s.toFixed(2)} s.`,
-      `${q.pause_start_s.toFixed(2)} s: no new estimate, so transmission to SONIC paused.`,
-      `${q.reset_s.toFixed(2)} s: the next frame came ${q.frame_gap_s.toFixed(3)} s after the previous one, over the 0.2 s limit, so the estimate was reset.`,
-      `${q.stop_s.toFixed(2)} s: ${q.watchdog_s} s without transmission; the watchdog stopped the robot. Transmission had been paused ${q.pause_s.toFixed(3)} s in total.`],
+      `${q.last_frame_s.toFixed(2)} s: last estimate frame before the stop (logged). The robot's last received target maps to ${q.last_received_s.toFixed(2)} s.`,
+      `${q.pause_start_s.toFixed(2)} s: no new estimate, so transmission to SONIC paused (logged).`,
+      `${q.reset_s.toFixed(2)} s: the next frame came ${q.frame_gap_s.toFixed(3)} s after the previous one, over the 0.2 s limit, so the estimate was reset (logged). The phones' packets kept arriving; no phone paused for more than 44 ms around this point, so the gap arose on the laptop after reception.`,
+      `about ${q.stop_s.toFixed(2)} s: the 0.5 s watchdog stopped the robot. This time is inferred as pause start + 0.5 s; the controller log has no timestamp for it. Transmission resumed at ${q.pause_end_s.toFixed(2)} s, ${q.pause_s.toFixed(3)} s after it paused, when the robot had already stopped.`],
     ko: q => [
-      `${q.last_frame_s.toFixed(2)} s: 정지 전 마지막 추정 프레임입니다. 로봇은 ${q.last_received_s.toFixed(2)} s에 마지막 목표를 받았습니다.`,
-      `${q.pause_start_s.toFixed(2)} s: 새 추정이 없어 SONIC으로 보내는 전송이 멈췄습니다.`,
-      `${q.reset_s.toFixed(2)} s: 다음 프레임이 ${q.frame_gap_s.toFixed(3)} s 뒤에 와서 0.2 s 한도를 넘었고, 추정을 초기화했습니다.`,
-      `${q.stop_s.toFixed(2)} s: 전송이 ${q.watchdog_s} s 동안 없어 watchdog이 로봇을 정지시켰습니다. 전송 중단은 모두 ${q.pause_s.toFixed(3)} s였습니다.`]},
+      `${q.last_frame_s.toFixed(2)} s: 정지 전 마지막 추정 프레임(기록값). 로봇이 마지막 목표를 받은 시점은 ${q.last_received_s.toFixed(2)} s로 대응됩니다.`,
+      `${q.pause_start_s.toFixed(2)} s: 새 추정이 없어 SONIC으로 보내는 전송이 멈췄습니다(기록값).`,
+      `${q.reset_s.toFixed(2)} s: 다음 프레임이 ${q.frame_gap_s.toFixed(3)} s 뒤에 와서 0.2 s 한도를 넘었고, 추정을 초기화했습니다(기록값). 이 무렵 세 폰의 패킷은 44 ms 넘게 끊기지 않았으므로, 공백은 수신 뒤 노트북에서 생겼습니다.`,
+      `약 ${q.stop_s.toFixed(2)} s: 0.5 s watchdog이 로봇을 정지시켰습니다. 이 시각은 전송 중단 시작 + 0.5 s로 추정한 값이며 컨트롤러 로그에는 시각이 없습니다. 전송은 ${q.pause_end_s.toFixed(2)} s, 즉 ${q.pause_s.toFixed(3)} s 뒤에 다시 시작됐고 그때 로봇은 이미 정지한 상태였습니다.`]},
+  events: {
+    en: [['Robot starts receiving targets'], ['Left arm raised'], ['Frame gap, estimate reset'], ['Automatic stop (inferred time)']],
+    ko: [['로봇이 목표를 받기 시작'], ['왼팔 들기'], ['프레임 공백, 추정 초기화'], ['자동 정지(추정 시각)']]},
+  now: {en: (l, a, b) => `At this moment: estimation latency ${l} ms · elevation target left ${a}°, right ${b}°`,
+        ko: (l, a, b) => `이 순간: 추정 지연 ${l} ms · 고도 목표 왼팔 ${a}°, 오른팔 ${b}°`},
+  tailFps: {en: w => `last ${(w.end_s - w.start_s).toFixed(0)} s before the stop: ${w.frames_per_s.toFixed(1)} frames/s`, ko: w => `정지 전 마지막 ${(w.end_s - w.start_s).toFixed(0)} s: ${w.frames_per_s.toFixed(1)} frames/s`},
+  tailLat: {en: w => `last ${(w.end_s - w.start_s).toFixed(0)} s: ${w.latency_p95_ms.toFixed(0)} ms · not end-to-end latency`, ko: w => `마지막 ${(w.end_s - w.start_s).toFixed(0)} s: ${w.latency_p95_ms.toFixed(0)} ms · 전체 원격조작 지연 아님`},
+  pauseSpan: {en: q => `${q.pause_start_s.toFixed(2)}–${q.pause_end_s.toFixed(2)} s, over the 0.5 s watchdog`, ko: q => `${q.pause_start_s.toFixed(2)}–${q.pause_end_s.toFixed(2)} s, watchdog 0.5 s 초과`},
   dist: {en: v => `${v} cm`, ko: v => `${v} cm`},
 };
 const t = key => T[key][lang];
@@ -87,14 +95,25 @@ function drawHuman(frame) {
     line([-1.5, 0, i * .25], [1.5, 0, i * .25], `rgba(96,130,230,${a})`, 1);
   }
   if (!frame) return;
-  const mask = meta.active_joint_mask || [], parents = meta.parents;
+  const parents = meta.parents;
   const pts = frame.joints.map(p => [p[0], p[1] + .96, p[2]]);
-  for (const active of [false, true]) pts.forEach((p, j) => {
-    if (parents[j] < 0 || Boolean(mask[j]) !== active) return;
-    line(pts[parents[j]], p, active ? '#6f9bff' : '#55607c', active ? 5 : 4, active ? 'rgba(74,124,255,.85)' : null);
+  // SMPL joints: left arm 16 18 20 22, right arm 17 19 21 23. Arms take the chart's colors.
+  const side = j => ([16, 18, 20, 22].includes(j) ? 'L' : [17, 19, 21, 23].includes(j) ? 'R' : null);
+  const STYLE = {L: ['#6aa6ff', 'rgba(74,140,255,.9)'], R: ['#ff9a5c', 'rgba(255,140,70,.85)'], null: ['#8292b8', null]};
+  for (const pass of [null, 'L', 'R']) pts.forEach((p, j) => {
+    if (parents[j] < 0 || side(j) !== pass) return;
+    line(pts[parents[j]], p, STYLE[pass][0], pass ? 5.5 : 4, STYLE[pass][1]);
   });
   ctx.shadowBlur = 0;
-  pts.forEach((p, j) => { ctx.beginPath(); ctx.arc(...proj(p), mask[j] ? 3.6 : 3, 0, Math.PI * 2); ctx.fillStyle = mask[j] ? '#e6eeff' : '#8791ab'; ctx.fill(); });
+  pts.forEach((p, j) => { ctx.beginPath(); ctx.arc(...proj(p), side(j) ? 3.6 : 3, 0, Math.PI * 2); ctx.fillStyle = side(j) ? '#eef3ff' : '#a3afc9'; ctx.fill(); });
+  // Where the phones were: L and R at the wrists (joints 20, 21), P on the belt (pelvis, joint 0).
+  ctx.font = '600 11px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const [j, tag] of [[20, 'L'], [21, 'R'], [0, 'P']]) {
+    const [x, y] = proj(pts[j]);
+    ctx.fillStyle = 'rgba(13,19,36,.85)'; ctx.strokeStyle = '#eef3ff'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - 8, y - 18 - 7, 16, 14, 3) : ctx.rect(x - 8, y - 25, 16, 14); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#eef3ff'; ctx.fillText(tag, x, y - 18);
+  }
 }
 
 /* ---------- chart ---------- */
@@ -165,6 +184,8 @@ function draw() {
   const key = stateKey(tt), chip = $('#chip');
   chip.textContent = t(key); chip.className = 'chip ' + (key === 'on' ? 'on' : key === 'after' ? 'off' : '');
   $('#time').textContent = (tt >= 0 ? t('timeAfter') : t('timeBefore'))(Math.abs(tt).toFixed(1));
+  const S = meta.series;
+  $('#now').textContent = t('now')(S.latency_ms[idx].toFixed(0), S.left_elev[idx].toFixed(0), S.right_elev[idx].toFixed(0));
   seek.value = idx;
   drawChartCursor();
 }
@@ -174,13 +195,22 @@ function refreshText() {
   if (!meta) return;
   const q = meta.stop_sequence;
   $('#stoplist').innerHTML = t('stops')(q).map(x => `<li>${x}</li>`).join('');
+  $('#f-fps-tail').textContent = t('tailFps')(meta.latency_tail);
+  $('#f-lat-tail').textContent = t('tailLat')(meta.latency_tail);
+  $('#f-pause-span').textContent = t('pauseSpan')(q);
+  const names = T.events[lang];
+  $('#events').innerHTML = EVENTS.map((e, k) => `<button type="button" data-t="${e.t}" class="${k === EVENTS.length - 1 ? 'stopev' : ''}"><b>${e.t.toFixed(e.t % 1 ? 1 : 0)} s</b>${names[k][0]}</button>`).join('');
+  // Jump a little before each event so it plays out; the stop events get a few seconds of lead-in.
+  $('#events').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { const v = Number(b.dataset.t); idx = indexForTime(v - (v > 100 ? 3 : 1)); clock = meta.series.t[idx]; draw(); }));
   renderChart(); draw();
 }
-function indexForTime(tt) {
-  const ts = meta.series.t; let lo = 0, hi = ts.length - 1;
+function indexForTimeIn(ts, tt) {
+  let lo = 0, hi = ts.length - 1;
   while (lo < hi) { const m = (lo + hi + 1) >> 1; if (ts[m] <= tt) lo = m; else hi = m - 1; }
   return lo;
 }
+function indexForTime(tt) { return indexForTimeIn(meta.series.t, tt); }
+let EVENTS = [];
 let last = null;
 function tick(now) {
   if (playing && meta) {
@@ -195,7 +225,6 @@ function tick(now) {
 function setPlaying(on) { playing = on; last = null; refreshText(); }
 $('#play').addEventListener('click', () => { if (meta) { if (!playing) clock = meta.series.t[idx]; setPlaying(!playing); } });
 $('#speed').addEventListener('change', e => { speed = Number(e.target.value); });
-$('#tostop').addEventListener('click', () => { if (!meta) return; idx = indexForTime(meta.auto_stop_s - 6); clock = meta.series.t[idx]; draw(); });
 seek.addEventListener('input', () => { idx = Number(seek.value); clock = meta.series.t[idx]; draw(); });
 chart.addEventListener('pointerdown', e => {
   if (!meta || !chartBox) return;
@@ -233,6 +262,14 @@ async function load() {
   seek.max = m.frames - 1;
   const w = m.latency_window_10s, fps = w.map(x => x.frames_per_s), lat = w.map(x => x.latency_p95_ms);
   $('#f-window').textContent = m.robot_window_s.toFixed(1) + ' s';
+  m.robot.limb_tints = {left_arm: {color: [.33, .6, 1], glow: [.1, .3, .95]}, right_arm: {color: [1, .56, .3], glow: [.85, .32, .05]}};
+  const S = m.series, top = S.left_elev.reduce((b, v, i) => (S.t[i] > 0 && S.t[i] < m.robot_window_s && v > S.left_elev[b] ? i : b), indexForTimeIn(S.t, 0));
+  EVENTS = [{t: 0}, {t: Math.round(S.t[top])}, {t: m.stop_sequence.last_frame_s}, {t: m.auto_stop_s}];
+  const span = S.t[S.t.length - 1] - S.t[0], pos = v => ((v - S.t[0]) / span * 100).toFixed(2) + '%';
+  $('#band').innerHTML = `<i style="left:0;width:${pos(0)};background:var(--line)"></i>`
+    + `<i style="left:${pos(0)};width:calc(${pos(m.robot_window_s)} - ${pos(0)});background:#2f9e63"></i>`
+    + `<i style="left:${pos(m.auto_stop_s)};right:0;background:var(--line)"></i>`
+    + `<i class="tick" style="left:${pos(m.auto_stop_s)}"></i>`;
   $('#f-fps').textContent = `${Math.min(...fps).toFixed(1)}–${Math.max(...fps).toFixed(1)} frames/s`;
   $('#f-lat').textContent = `${Math.min(...lat).toFixed(1)}–${Math.max(...lat).toFixed(1)} ms`;
   $('#f-pause').textContent = m.stop_sequence.pause_s.toFixed(3) + ' s';

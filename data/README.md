@@ -42,16 +42,16 @@ From the field log kept on the laptop during the session. Times are KST.
 | 2 | 17:29:45–17:33:58 | `3a0f56d` | 23 frames/s, p95 estimation latency 218 ms, 191 short transmission pauses; two browser windows of the web Studio were open on the laptop | controller result |
 | 3–5 | 17:34–17:36 | `3a0f56d` | stop checks with the stop key, the emergency stop and closing the app (operator report) | – |
 | 6 | 17:44:12–17:44:32 | `3a0f56d` | watchdog stop after about 20 s | controller result |
-| 7 | 17:50:49–17:53:40 | `b2a59f1` | the run in the paper: both arms followed, 60.0 frames/s and 114 ms p95 in the Studio readout, watchdog stop after a 0.206 s frame gap | everything |
+| 7 | 17:50:49–17:53:40 | `b2a59f1` | the last run, described in the paper: 60.0 frames/s and 114 ms p95 computed by the estimation server for the 10 s window at 2 min 38 s; watchdog stop after a 0.206 s frame gap | everything |
 
-Code versions are commits of the team's private repository. The paper describes `b2a59f1`.
+Code versions are commits of the team's private repository. The real-time pipeline in the paper is `b2a59f1`; the one-arm replay behind Table 1 used `7416ccc1`.
 
 ## What was cleaned
 
 - Phone identifiers (`device_id`, `session_id`, `ar_reference_id` and the UUID inside `clock_id`) became pseudonyms named after the OS and the body position the phone streamed most, such as `ios-device-right-arm`. The same phone keeps the same pseudonym across both days. [`pseudonyms.json`](pseudonyms.json) lists them.
-- Private IPv4 addresses became `<lan-ip-1>`, `<lan-ip-2>`; the laptop's home directory became `~`.
+- The laptop's private IPv4 address became `<lan-ip-1>`; home directories became `~`. The same rules run over every raw packet line, and the build stops if anything that looks like a UUID, private address, home path or email address is left.
 - Nothing else changed. Measurements, timestamps, estimates, controller output and the phone model strings are as recorded.
 
 ## License
 
-CC BY 4.0, see [LICENSE.md](LICENSE.md), which also lists the licenses of the code, the paper and the figures. Please cite the paper when you use the data.
+CC BY-NC 4.0, see [LICENSE.md](LICENSE.md), which also lists the licenses of the code, the paper and the figures. Please cite the paper when you use the data.

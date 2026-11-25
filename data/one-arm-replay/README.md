@@ -24,7 +24,7 @@ For `f-original`, `f` and `g` the `default` row equals `ar-ik`, because those re
 | Column | Meaning |
 | --- | --- |
 | `frames` | aligned pose frames in the replay |
-| `nominal_frames`, `nominal_elevation_mae_deg` | frames inside pose intervals fixed beforehand from the video, and the mean absolute error between the estimated shoulder-to-wrist elevation and the nominal angle (0°, ±90°). Recording 1: five intervals (T-pose, arm down, arms up); recordings 2 and 3: one 3 s arms-up interval |
+| `nominal_frames`, `nominal_elevation_mae_deg` | frames inside pose intervals fixed beforehand from the video, and the mean absolute error between the estimated shoulder-to-wrist elevation and the nominal angle (0°, ±90°). Recording 1: five intervals (T-pose, arm down, arms up); recordings 2 and 3: one 3 s arms-up interval each. The replay keeps only aligned pose frames, and their rate differs between recordings: the 3 s interval holds 54 frames in recording 2 (about 18/s) and 110 in recording 3 (about 37/s). The source report does not explain the difference |
 | `elbow_bend_mean_deg`, `elbow_bend_p95_deg` | elbow flexion of the estimated human pose, 0° = straight |
 | `elbow_jerk_p95_m_s3`, `wrist_jerk_p95_m_s3` | p95 of the joint position jerk over the whole recording, third finite difference on the real timestamps, windows across a reset excluded |
 | `jerk_windows` | jerk windows used |

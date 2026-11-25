@@ -60,7 +60,7 @@ def run7():
     cfg = session['config']
 
     # 3.1 / 3.2 settings recorded with the run
-    check('3.1', 'Resampled to 60 Hz; samples with clock error over 20 ms rejected',
+    check('3.1', 'Resampled to 60 Hz; samples whose clock-offset uncertainty exceeds 20 ms rejected',
           f"fps={cfg['fps']}, max_clock_uncertainty={cfg['max_clock_uncertainty']} s",
           cfg['fps'] == 60 and cfg['max_clock_uncertainty'] == 0.02)
     check('3.1', 'T-pose held palms down', calib.get('tpose_variant'), calib.get('tpose_variant') == 'palms_down')
@@ -77,9 +77,15 @@ def run7():
           cfg['max_gap_seconds'] == 0.2)
     check('3.2', 'Watchdog stops the robot after 0.5 s without input',
           f"watchdog_timeout_seconds={ctl['watchdog_timeout_seconds']}", ctl['watchdog_timeout_seconds'] == 0.5)
-    check('3.2', 'Weights: public IMUCoCo checkpoints, loaded without missing keys',
-          f"backend={session['model']['backend']}, upstream {session['model']['upstream_commit'][:7]}",
-          session['model']['backend'] == 'imucoco' and session['model']['checkpoint_load'][0]['missing'] == [])
+    # SHA-256 of the IMUCoCo authors' public checkpoint files (synergylabs.org/haozhe/*.pth), as downloaded by the team.
+    public = {'imucoco_best': 'a560a41324cff005c3cec88bf7b579de9cecd18fe3e67eae7def70cf6d60fb13',
+              'all_error_loss_map': 'a6b25986f4232d1dba5e815eb8537cc8e501eff3ea9dacd5d26c7867d828cf30',
+              'poser_dtp_best': '9bf8412c0cd1d5e938530d9d92503c6ae9b5c86c592f34ba57edaa4c96068629'}
+    check('3.2', 'Weights: the IMUCoCo authors\' public checkpoints, unchanged, loaded without missing keys',
+          f"backend={session['model']['backend']}, upstream {session['model']['upstream_commit'][:7]}, "
+          f"checkpoint hashes match: {session['model']['checkpoints'] == public}",
+          session['model']['backend'] == 'imucoco' and session['model']['checkpoints'] == public
+          and session['model']['checkpoint_load'][0]['missing'] == [])
 
     # Robot window from the controller log (same mapping as Fig. 3)
     log = text(RUN7 / 'real-controller-terminal-run7.log').replace('\r', '\n')
@@ -106,7 +112,8 @@ def run7():
     t_on, t_last = at(idx[0]), at(idx[-1])
     long = max(sonic['recent_pauses'], key=lambda p: p['seconds'])
     t_stop = long['start_monotonic'] + WATCHDOG_S
-    check('Fig. 3', 'Robot window on the Studio clock', f'{t_last - t_on:.1f} s', near(t_last - t_on, 168.0, 0.05))
+    check('Fig. 3', 'Robot window: controller frame indices mapped onto the 50 Hz send timeline (post-hoc)',
+          f'{t_last - t_on:.1f} s', near(t_last - t_on, 168.0, 0.05))
     check('4.2', 'Last message to the robot sits just before the long pause',
           f"{long['start_monotonic'] - t_last:.3f} s before a {long['seconds']:.3f} s pause",
           0 <= long['start_monotonic'] - t_last < 0.2 and long['seconds'] > WATCHDOG_S)
@@ -141,13 +148,18 @@ def run7():
         fps.append(len(w) / 10)
         p95.append(pct(w, 95))
         start += 10
-    check('4.2', '60.0 frames/s, p95 latency 114 ms over a 10 s window (Studio readout during the run)',
-          f'{len(fps)} ten-second windows: {min(fps):.1f}-{max(fps):.1f} frames/s, p95 {min(p95):.1f}-{max(p95):.1f} ms',
+    tail = [l * 1e3 for t, l in zip(ts, lat) if start <= t - t_on < t_last - t_on and l is not None]
+    tail_fps = len(tail) / (t_last - t_on - start)
+    check('4.2', 'Consistency with the 60.0 frames/s and 114 ms p95 read during the run (10 s window at 2 min 38 s)',
+          f'{len(fps)} full 10 s windows, 0-{start:.0f} s: {min(fps):.1f}-{max(fps):.1f} frames/s, p95 {min(p95):.1f}-{max(p95):.1f} ms; '
+          f'last {t_last - t_on - start:.0f} s before the stop: {tail_fps:.1f} frames/s, p95 {pct(tail, 95):.1f} ms',
           min(fps) >= 58 and max(fps) <= 60.05 and min(p95) <= 114 <= max(p95),
-          'post-hoc; the paper value is the Studio display, not recomputed here')
+          'post-hoc. The paper value was read from the estimation server during the run and is not in the logs; '
+          'this only shows that it is typical of the robot window before the final seconds')
 
     # Raw packets: three phones, AR received and logged only
-    counts, last_rx, gaps_rx = {}, {}, {}
+    counts, last_rx, near_stop = {}, {}, {}
+    gap_at = gaps[0][0] if gaps else t_stop
     for line in lines(rec / 'raw.jsonl'):
         d = json.loads(line)
         p = d['packet']
@@ -157,8 +169,8 @@ def run7():
             counts[(key, 'robot')] = counts.get((key, 'robot'), 0) + 1
         if p.get('type') == 'sample':
             s, t = p['stream_id'], d['receive_time']
-            if s in last_rx and t - last_rx[s] > 0.15 and t_on <= t <= t_stop:
-                gaps_rx.setdefault(s, []).append((last_rx[s] - t_on, t - last_rx[s]))
+            if s in last_rx and gap_at - 0.5 <= t <= gap_at + 0.5:
+                near_stop[s] = max(near_stop.get(s, 0.0), t - last_rx[s])
             last_rx[s] = t
     streams = sorted({s for s, kind in counts if kind == 'sample'})
     check('4.1', 'Three phones streamed IMU samples', ', '.join(streams), streams == ['left_arm', 'pelvis', 'right_arm'])
@@ -170,11 +182,10 @@ def run7():
     check('6', 'AR coupling was off on the robot (no AR flag in the launch script)',
           'flags: ' + ' '.join(sorted(set(re.findall(r'--[a-z-]+', script)))),
           '--three-phone-ar' not in script and '--one-phone-ar' not in script)
-    joint = [(s, g) for s, v in gaps_rx.items() for g in v]
-    check('4.2', 'Simultaneous receive gap of all three phones before the stop (post-hoc)',
-          '; '.join(f'{s} {g:.3f} s at {a:.1f} s' for s, (a, g) in sorted(joint)),
-          len({s for s, _ in joint}) == 3 and all(0.15 < g < 0.17 for _, (_, g) in joint),
-          'pattern points to a processing stall on the laptop')
+    check('4.2', 'Phone packets kept arriving around the 0.206 s frame gap (post-hoc)',
+          'largest receive gap within 0.5 s of it: ' + ', '.join(f'{s} {g * 1e3:.0f} ms' for s, g in sorted(near_stop.items())),
+          len(near_stop) == 3 and max(near_stop.values()) < 0.1,
+          'so the frame gap arose on the laptop after reception; the paper attributes the stop to laptop processing and communication delay')
 
 
 def run1121():
@@ -185,17 +196,18 @@ def run1121():
         d = json.loads(line)
         if d['packet'].get('type') == 'sample' and d['receive_time'] <= o:
             last = d['receive_time']
-    check('4.2', '1st demonstration: stop 0.976 s after the last input when the app was closed',
+    check('4.2', '1st demonstration: stop command sent 0.976 s after the last received input when the app was closed',
           f'{o - last:.3f} s (last sample received -> O sent)', near(o - last, 0.976, 0.0005))
     check('4.2', '1st demonstration: the stop came from the watchdog',
           f"watchdog_triggered={ctl['watchdog_triggered']}, reason={ctl['reason']!r}", ctl['watchdog_triggered'])
-    runs = sorted(RUN1121.glob('real-controller*.json'))
-    seen = [json.loads(f.read_text()) for f in runs]
-    check('4.2', '1st demonstration: three controller sessions streamed to the robot and stopped',
-          ', '.join(f"{f.stem}: streaming_seen={d['streaming_seen']}, stop_acknowledged={d['stop_acknowledged']}"
-                    for f, d in zip(runs, seen)),
-          len(seen) == 3 and all(d['streaming_seen'] and d['stop_acknowledged'] for d in seen),
-          'following itself was observed by the operator and on video, not logged')
+    spans = []
+    for name in ('real-controller-terminal-run1.log', 'real-controller-terminal-run2.log', 'real-controller-terminal.log'):
+        idx = [int(x) for x in re.findall(r'Frame\[0\] \(idx=(\d+)\)', text(RUN1121 / name))]
+        spans.append((name, idx[0], idx[-1]) if idx else (name, None, None))
+    distinct = all(a is not None for _, a, _ in spans) and len({(a, b) for _, a, b in spans}) == 3
+    check('4.2', '1st demonstration: three controller sessions received stream frames',
+          ', '.join(f'{n.replace("real-controller-terminal", "terminal")}: idx {a}-{b}' for n, a, b in spans), distinct,
+          'distinct frame ranges per session; following itself was observed by the operator and on video, not logged')
     session = json.loads((RUN1121 / 'recording/session.json').read_text())
     streams = sorted(session['config']['streams'])
     check('4.1', '1st demonstration: one phone in the right hand', ', '.join(streams), streams == ['right_arm'])

@@ -15,7 +15,6 @@
     "ios-session-right-arm-3"
   ],
   "lan_ip_placeholders": [
-    "<lan-ip-1>",
-    "<lan-ip-2>"
+    "<lan-ip-1>"
   ]
 }
