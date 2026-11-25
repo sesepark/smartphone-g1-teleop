@@ -1,0 +1,20 @@
+{
+  "robot_window_s": 168.0,
+  "messages_received": 8377,
+  "controller_receive_span_s": 168.3,
+  "controller_mean_interval_ms": 20.09,
+  "first_send_after_recording_start_s": 0.79,
+  "last_message_before_long_pause_s": 0.059,
+  "estimation_latency_ms_p50": 111.8,
+  "estimation_latency_ms_p95": 115.2,
+  "elevation_range_deg": {
+    "left": [
+      -69.0,
+      68.8
+    ],
+    "right": [
+      -66.0,
+      22.1
+    ]
+  }
+}

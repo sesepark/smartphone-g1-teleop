@@ -1,0 +1,192 @@
+{
+  "label": "PHYSICAL G1 Stage 1 supported, one iPhone right hand, CUDA Live defaults, real SONIC, 0.5 s watchdog",
+  "studio": "http://127.0.0.1:8765",
+  "zmq_endpoint": "tcp://127.0.0.1:5556",
+  "hz": 20.0,
+  "started_monotonic": 9179.17172843,
+  "ended_monotonic": 9539.17186112,
+  "seconds": 360.0001326900001,
+  "polls": 7200,
+  "failed_polls": 0,
+  "http_ms": {
+    "n": 7200,
+    "p50": 2.064374500150734,
+    "p95": 3.0349572994055043,
+    "max": 131.35165000130655
+  },
+  "streams": {
+    "right_arm": {
+      "receive_age_s": {
+        "n": 7200,
+        "p50": 0.014097355999183492,
+        "p95": 147.57898607159956,
+        "max": 165.57625450900014
+      },
+      "clock_uncertainty_s": {
+        "n": 7200,
+        "p50": 0.0021767276693935855,
+        "p95": 0.002261802835164417,
+        "max": 0.006567242165147036
+      }
+    }
+  },
+  "engine_reason_share": {
+    "stale right_arm": 0.4592,
+    "tracking": 0.4453,
+    "Floor Alignment required": 0.0947,
+    "waiting for late input (unpaired rotation for right_arm)": 0.0006,
+    "no history for right_arm": 0.0003
+  },
+  "sonic_reason_share": {
+    "stale right_arm": 0.4592,
+    "streaming delayed live input": 0.444,
+    "Floor Alignment required": 0.0947,
+    "streaming delayed live input with a held tail": 0.001,
+    "live estimate stale; publishing paused": 0.0008,
+    "no history for right_arm": 0.0003
+  },
+  "estimate_age_s": {
+    "n": 3210,
+    "p50": 0.12178962939651683,
+    "p95": 0.1295037456538921,
+    "max": 0.2954530800016073
+  },
+  "published": {
+    "first": 8168,
+    "last": 16148
+  },
+  "since_last_publication_s": {
+    "n": 7200,
+    "p50": 19.586152751499867,
+    "p95": 181.56466140245016,
+    "max": 199.56172976500056
+  },
+  "stats_delta": {
+    "received": 12893,
+    "rejected": 1,
+    "frames": 9513,
+    "resets": 1,
+    "overruns": 0,
+    "skipped_deadlines": 196,
+    "late_input_waits": 12,
+    "ignored_unselected": 2390
+  },
+  "studio_timing_last": {
+    "fps": null,
+    "estimate_age_ms": null,
+    "tick_interval_ms": null,
+    "model_ms": null,
+    "post_model_ms": null,
+    "tick_ms": null
+  },
+  "rejections_last": {
+    "clock not synchronized": 1
+  },
+  "invalidations": [
+    {
+      "monotonic": 9339.643773194,
+      "reason": "stale right_arm",
+      "was_active": true,
+      "require_calibration": false
+    },
+    {
+      "monotonic": 9504.955152665,
+      "reason": "source identity/sender changed; recalibrate",
+      "was_active": false,
+      "require_calibration": true
+    },
+    {
+      "monotonic": 9504.956016398,
+      "reason": "no history for right_arm",
+      "was_active": false,
+      "require_calibration": false
+    },
+    {
+      "monotonic": 9505.040545199,
+      "reason": "Floor Alignment required",
+      "was_active": false,
+      "require_calibration": false
+    }
+  ],
+  "invalidation_reasons": {
+    "stale right_arm": 1,
+    "source identity/sender changed; recalibrate": 1,
+    "no history for right_arm": 1,
+    "Floor Alignment required": 1
+  },
+  "publication_pauses": {
+    "count": 2,
+    "seconds": {
+      "n": 2,
+      "p50": 0.14099647700004425,
+      "p95": 0.14900728789989443,
+      "max": 0.1498973779998778
+    },
+    "first_reasons": {
+      "live estimate stale; publishing paused": 2
+    }
+  },
+  "zmq": {
+    "messages": 7980,
+    "interval_ms": {
+      "n": 7979,
+      "p50": 19.997102999695926,
+      "p95": 20.906864200333075,
+      "max": 149.58361200115178
+    },
+    "gaps_over_100ms": 3,
+    "gaps_over_500ms": 0,
+    "longest_gaps_s": [
+      0.14958361200115178,
+      0.13152781799908553,
+      0.12397991200123215,
+      0.05355594600041513,
+      0.052828992000286235
+    ]
+  },
+  "watchdog_replay": {
+    "0.5": {
+      "stops": 1,
+      "first": [
+        {
+          "monotonic": 9340.123089664,
+          "since_progress_s": 0.5492994690011983,
+          "reason": "stale right_arm",
+          "sonic_reason": "stale right_arm",
+          "streams": {
+            "right_arm": 0.7759321339999588
+          }
+        }
+      ]
+    },
+    "1": {
+      "stops": 1,
+      "first": [
+        {
+          "monotonic": 9340.622829727,
+          "since_progress_s": 1.0490395320011885,
+          "reason": "stale right_arm",
+          "sonic_reason": "stale right_arm",
+          "streams": {
+            "right_arm": 1.2759940380001353
+          }
+        }
+      ]
+    },
+    "2": {
+      "stops": 1,
+      "first": [
+        {
+          "monotonic": 9341.623810322,
+          "since_progress_s": 2.0500201270006073,
+          "reason": "stale right_arm",
+          "sonic_reason": "stale right_arm",
+          "streams": {
+            "right_arm": 2.2762023609993776
+          }
+        }
+      ]
+    }
+  },
+  "note": "Observation only. Phone receive age is time since the last admitted packet; rejected packets do not refresh it. Watchdog stops are an offline replay of the controller rule, not controller events."
+}

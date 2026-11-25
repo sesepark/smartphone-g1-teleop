@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "watchdog_triggered": false,
+  "reason": null,
+  "stop_acknowledged": true,
+  "terminated_after_stop": false,
+  "streaming_seen": true,
+  "watchdog_timeout_seconds": 0.5,
+  "mode": "real"
+}

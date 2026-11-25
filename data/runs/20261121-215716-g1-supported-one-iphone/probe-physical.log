@@ -1,0 +1,85 @@
+Probing http://127.0.0.1:8765/api/status for 360 s at 20 Hz; output ~/shape-msi/runs-1121/20261121-215716-g1-supported-one-iphone/probe-physical
+{
+  "seconds": 360.0001326900001,
+  "failed_polls": 0,
+  "http_ms": {
+    "n": 7200,
+    "p50": 2.064374500150734,
+    "p95": 3.0349572994055043,
+    "max": 131.35165000130655
+  },
+  "streams": {
+    "right_arm": {
+      "receive_age_s": {
+        "n": 7200,
+        "p50": 0.014097355999183492,
+        "p95": 147.57898607159956,
+        "max": 165.57625450900014
+      },
+      "clock_uncertainty_s": {
+        "n": 7200,
+        "p50": 0.0021767276693935855,
+        "p95": 0.002261802835164417,
+        "max": 0.006567242165147036
+      }
+    }
+  },
+  "estimate_age_s": {
+    "n": 3210,
+    "p50": 0.12178962939651683,
+    "p95": 0.1295037456538921,
+    "max": 0.2954530800016073
+  },
+  "engine_reason_share": {
+    "stale right_arm": 0.4592,
+    "tracking": 0.4453,
+    "Floor Alignment required": 0.0947,
+    "waiting for late input (unpaired rotation for right_arm)": 0.0006,
+    "no history for right_arm": 0.0003
+  },
+  "invalidation_reasons": {
+    "stale right_arm": 1,
+    "source identity/sender changed; recalibrate": 1,
+    "no history for right_arm": 1,
+    "Floor Alignment required": 1
+  },
+  "publication_pauses": {
+    "count": 2,
+    "seconds": {
+      "n": 2,
+      "p50": 0.14099647700004425,
+      "p95": 0.14900728789989443,
+      "max": 0.1498973779998778
+    },
+    "first_reasons": {
+      "live estimate stale; publishing paused": 2
+    }
+  },
+  "zmq_endpoint": "tcp://127.0.0.1:5556",
+  "zmq": {
+    "messages": 7980,
+    "interval_ms": {
+      "n": 7979,
+      "p50": 19.997102999695926,
+      "p95": 20.906864200333075,
+      "max": 149.58361200115178
+    },
+    "gaps_over_100ms": 3,
+    "gaps_over_500ms": 0,
+    "longest_gaps_s": [
+      0.14958361200115178,
+      0.13152781799908553,
+      0.12397991200123215,
+      0.05355594600041513,
+      0.052828992000286235
+    ]
+  },
+  "rejections_last": {
+    "clock not synchronized": 1
+  },
+  "watchdog_stops": {
+    "0.5": 1,
+    "1": 1,
+    "2": 1
+  }
+}

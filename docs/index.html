@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smartphone G1 Teleoperation</title>
+<meta name="description" content="Replay of a three-phone teleoperation run on a real Unitree G1 and the logs behind the KRoC 2027 paper.">
+<style>
+:root{
+  --bg:#f6f7f9;--surface:#ffffff;--ink:#121417;--ink-2:#3d434c;--muted:#626a75;--line:#dde1e7;--line-soft:#eceef2;
+  --accent:#2457d6;--accent-soft:#e9effd;--stage:#0d1324;--stage-2:#18213a;--stage-ink:#c7d0e6;
+  --left:#2a78d6;--right:#eb6834;--chart-ink:#1b1e23;--shade:rgba(20,24,33,.06);--warn:#8a5a00;--warn-bg:#fdf2dc;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1115;--surface:#171a20;--ink:#eceef2;--ink-2:#c4c9d2;--muted:#9aa2ae;--line:#2b3039;--line-soft:#232730;
+  --accent:#7ea2ff;--accent-soft:#1d2640;--left:#5b9bf0;--right:#f08a5d;--chart-ink:#e3e6eb;--shade:rgba(255,255,255,.05);
+  --warn:#f3c66b;--warn-bg:#3a2e14;color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f1115;--surface:#171a20;--ink:#eceef2;--ink-2:#c4c9d2;--muted:#9aa2ae;--line:#2b3039;--line-soft:#232730;
+  --accent:#7ea2ff;--accent-soft:#1d2640;--left:#5b9bf0;--right:#f08a5d;--chart-ink:#e3e6eb;--shade:rgba(255,255,255,.05);
+  --warn:#f3c66b;--warn-bg:#3a2e14;color-scheme:dark;}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--accent);text-underline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top{padding:40px 0 28px;border-bottom:1px solid var(--line-soft);background:var(--surface)}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+.tag{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lang{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer;min-height:34px}
+.lang button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+h1{font-size:clamp(26px,4.2vw,40px);line-height:1.2;letter-spacing:-.02em;margin:0 0 10px}
+.authors{color:var(--ink-2);margin:0 0 4px}
+.lede{color:var(--muted);max-width:820px;margin:14px 0 20px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--ink);font-weight:600;font-size:14px;background:var(--surface)}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .links a.primary{color:#0f1115}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .links a.primary{color:#0f1115}}
+main section{padding:36px 0 8px}
+h2{font-size:22px;letter-spacing:-.01em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 18px;max-width:860px}
+.card{background:var(--surface);border:1px solid var(--line-soft);border-radius:14px}
+.stage{overflow:hidden}
+.views{display:grid;grid-template-columns:1fr 1fr;background:radial-gradient(120% 90% at 50% 0%,var(--stage-2),var(--stage))}
+.view{position:relative;min-width:0}
+.view+.view{border-left:1px solid rgba(255,255,255,.08)}
+.view canvas{display:block;width:100%;height:420px;touch-action:none;cursor:grab}
+.vlabel{position:absolute;left:16px;top:14px;color:var(--stage-ink);font-size:13px;pointer-events:none}
+.vlabel strong{display:block;color:#fff;font-size:14px}
+.chip{position:absolute;right:14px;top:14px;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.1);color:#fff;pointer-events:none}
+.chip.on{background:#1f7a4c}
+.chip.off{background:#7a3b1f}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--line-soft)}
+.controls button,.controls select{font:inherit;font-size:14px;min-height:40px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:0 14px;cursor:pointer}
+.controls button.play{background:var(--accent);border-color:var(--accent);color:#fff;min-width:84px;font-weight:700}
+:root[data-theme="dark"] .controls button.play{color:#0f1115}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .controls button.play{color:#0f1115}}
+.time{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:14px;margin-left:auto}
+.seek{width:100%;margin:0;accent-color:var(--accent)}
+.seekrow{padding:4px 16px 0}
+.chart{display:block;width:100%;height:250px;cursor:crosshair}
+.chartwrap{padding:6px 8px 4px;border-top:1px solid var(--line-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);padding:0 16px 14px}
+.legend i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 0}
+.fact{padding:14px 16px}
+.fact small{display:block;color:var(--muted);font-size:13px;line-height:1.45}
+.fact strong{display:block;font-size:22px;letter-spacing:-.01em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted);margin:12px 0 0}
+ol.stop{margin:10px 0 0;padding-left:20px;color:var(--ink-2)}
+ol.stop li{margin:4px 0}
+.photo{margin:20px 0 0;overflow:hidden}
+.photo img{display:block;width:100%;height:auto}
+.photo figcaption{padding:10px 16px 14px;color:var(--muted);font-size:13px}
+.split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+.elbow canvas{display:block;width:100%;height:340px;touch-action:none;cursor:pointer;border-radius:14px 14px 0 0}
+.elbowctl{display:grid;gap:10px;padding:14px 16px}
+.elbowctl label{display:grid;grid-template-columns:110px 1fr 70px;align-items:center;gap:10px;font-size:14px}
+.elbowctl output{font-variant-numeric:tabular-nums;text-align:right}
+.eq{font-family:"Times New Roman",Georgia,serif;font-size:17px;padding:12px 16px;background:var(--accent-soft);border-radius:10px;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line-soft);text-align:right;white-space:nowrap}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+th{color:var(--muted);font-weight:600;font-size:13px}
+tr.ar td{font-weight:650}
+.tablewrap{overflow-x:auto;padding:4px 6px}
+.files{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.file a{overflow-wrap:anywhere}
+.file{padding:16px}
+.file h3{font-size:15px;margin:0 0 6px}
+.file p{margin:0 0 8px;color:var(--muted);font-size:14px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--accent-soft);padding:1px 5px;border-radius:5px}
+pre{background:var(--stage);color:#dfe6f5;border-radius:12px;padding:14px 16px;overflow-x:auto;font-size:13px;line-height:1.55}
+footer{padding:36px 0 48px;color:var(--muted);font-size:13px;border-top:1px solid var(--line-soft);margin-top:36px}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--stage-ink);font-size:14px}
+.split>*,.files>*,.facts>*,.views>*{min-width:0}
+@media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:minmax(0,1fr)}.files{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:680px){.views{grid-template-columns:1fr}.view+.view{border-left:0;border-top:1px solid rgba(255,255,255,.08)}.view canvas{height:300px}.chart{height:220px}.time{margin-left:0;width:100%}header.top{padding:28px 0 22px}.elbowctl label{grid-template-columns:90px 1fr 60px}th{white-space:normal}th,td{padding:8px 6px;font-size:13px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="toprow">
+      <span class="tag" data-ko="KRoC 2027 투고 논문 공개 자료">KRoC 2027 paper companion</span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="ko" aria-pressed="false">한국어</button>
+        <button type="button" data-lang="en" aria-pressed="true">English</button>
+      </div>
+    </div>
+    <h1 data-ko="손에 든 스마트폰으로 G1 휴머노이드 상체 원격조작">Hand-Held Smartphone Teleoperation of a G1 Humanoid Upper Body</h1>
+    <p class="authors" data-ko="안상현 · 강재욱 · 박세환 · 서울대학교">Sanghyun An · Jae Wook Kang · Sehwan Park · Seoul National University</p>
+    <p class="lede" data-ko="스마트폰 3대(양손 2대, 허리 벨트 1대)의 IMU만으로 갠트리에 매단 실물 Unitree G1의 상체를 실시간으로 원격조작했습니다. 이 페이지에서 그 실행의 기록을 재생하고, 논문의 수치를 공개 로그와 대조할 수 있습니다.">We teleoperated the upper body of a real, gantry-supported Unitree G1 in real time with only three smartphones: two in the hands and one on the belt. This page replays the recording of that run and connects the numbers in the paper to the published logs.</p>
+    <div class="links">
+      <a class="primary" href="#replay" data-ko="실행 재생">Replay the run</a>
+      <a href="https://github.com/sesepark/smartphone-g1-teleop" data-ko="GitHub 저장소">GitHub repository</a>
+      <a href="https://github.com/sesepark/smartphone-g1-teleop/tree/main/data" data-ko="실험 로그">Experiment logs</a>
+      <a href="https://github.com/sesepark/smartphone-g1-teleop/blob/main/EVIDENCE.md" data-ko="논문 수치와 근거">Paper numbers and sources</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<section id="replay">
+  <h2 data-ko="실물 G1, 폰 3대 실행 재생 (2026-11-22, 마지막 실행)">Three-phone run on the real G1 (2026-11-22, last run)</h2>
+  <p class="sub" data-ko="왼쪽은 폰 3대의 입력으로 IMUCoCo가 추정한 사람 자세, 오른쪽은 SONIC 정책에 보낸 G1 목표 자세입니다. 둘 다 추정 서버가 60 frames/s로 기록한 값이고, 여기서는 30 frames/s로 재생합니다. 로봇의 실제 관절을 측정한 값이 아니며, 로봇이 따라 움직인 것은 현장 영상으로 확인했습니다. 화면을 끌면 돌아가고, 두 손가락이나 Ctrl + 휠로 확대합니다.">Left: the human pose that IMUCoCo estimated from the three phones. Right: the G1 target pose sent to the SONIC policy. Both were recorded by the estimation server at 60 frames/s and are replayed here at 30 frames/s. They are not measurements of the robot's joints; that the robot followed was confirmed on video. Drag a view to rotate it; pinch or Ctrl + scroll to zoom.</p>
+  <div class="card stage">
+    <div class="views">
+      <div class="view">
+        <div class="vlabel"><strong data-ko="추정한 사람 자세">Estimated human pose</strong><span data-ko="IMUCoCo · 폰 3대 IMU">IMUCoCo · three phone IMUs</span></div>
+        <canvas id="human" aria-label="Estimated human pose"></canvas>
+        <div class="loading" id="loading" data-ko="기록을 불러오는 중…">Loading the recording…</div>
+      </div>
+      <div class="view">
+        <div class="vlabel"><strong data-ko="G1 목표 자세">G1 target pose</strong><span data-ko="SONIC에 보낸 목표 · 팔만 갱신">sent to SONIC · arms only</span></div>
+        <span class="chip" id="chip"></span>
+        <canvas id="robot" data-theme="dark" aria-label="G1 target pose"></canvas>
+      </div>
+    </div>
+    <div class="seekrow"><input class="seek" id="seek" type="range" min="0" max="0" value="0" aria-label="Time"></div>
+    <div class="controls">
+      <button type="button" class="play" id="play" data-ko="재생">Play</button>
+      <select id="speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
+      <button type="button" id="tostop" data-ko="자동 정지 직전으로">Jump to the automatic stop</button>
+      <span class="time" id="time"></span>
+    </div>
+    <div class="chartwrap"><canvas class="chart" id="chart" aria-label="Arm elevation targets and estimation latency over time"></canvas></div>
+    <div class="legend">
+      <span><i style="border-color:var(--left)"></i><span data-ko="왼팔 고도 목표">Left arm elevation target</span></span>
+      <span><i style="border-color:var(--right);border-top-style:dashed"></i><span data-ko="오른팔 고도 목표">Right arm elevation target</span></span>
+      <span><i style="border-color:var(--chart-ink);border-top-width:1px"></i><span data-ko="추정 지연(입력 샘플 시각 → 추정 완료)">Estimation latency (sample time to finished estimate)</span></span>
+      <span><i style="border-color:var(--chart-ink);border-top-style:dotted"></i><span data-ko="자동 정지 · 회색: 로봇이 목표를 받지 않은 구간 · 그래프를 누르면 그 시점으로 이동">Automatic stop · gray: robot not receiving targets · click to jump</span></span>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div class="card fact"><small data-ko="로봇이 목표를 받은 구간">Robot received targets for</small><strong id="f-window">–</strong><small data-ko="컨트롤러 로그 기준">from the controller log</small></div>
+    <div class="card fact"><small data-ko="10 s 구간 처리율">Throughput, 10 s windows</small><strong id="f-fps">–</strong><small id="f-nwin" data-ko="로봇 구간의 10 s 구간 16개">16 windows inside the robot window</small></div>
+    <div class="card fact"><small data-ko="10 s 구간 추정 지연 p95">Estimation latency p95, 10 s windows</small><strong id="f-lat">–</strong><small data-ko="SONIC 참조 지연 0.35 s 제외">excludes SONIC's 0.35 s reference delay</small></div>
+    <div class="card fact"><small data-ko="자동 정지 직전 전송 중단">Transmission pause before the stop</small><strong id="f-pause">–</strong><small data-ko="watchdog 0.5 s 초과 → 정지">over the 0.5 s watchdog → stop</small></div>
+  </div>
+  <p class="note" data-ko="논문의 60.0 frames/s와 추정 지연 p95 114 ms는 실행 중 Studio가 2분 38초 시점의 10 s 구간에서 보여 준 값입니다. 위 카드는 같은 기록(motion.jsonl)에서 로봇 구간을 10 s씩 나눠 다시 계산한 사후 분석이라 그 값과 정확히 같지는 않습니다.">The paper's 60.0 frames/s and 114 ms p95 latency are the values the Studio showed for the 10 s window at 2 min 38 s during the run. The cards above are a post-hoc recomputation from the same recording (motion.jsonl), splitting the robot window into 10 s windows, so they need not match those values exactly.</p>
+  <ol class="stop" id="stoplist"></ol>
+  <figure class="card photo">
+    <img src="assets/fig2_real_g1.jpg" alt="Phone placement and the three-phone demonstration with the G1 on a gantry" loading="lazy">
+    <figcaption data-ko="논문 Fig. 2. (a) 뒤에서 본 폰 배치: 양손의 iOS 폰 L·R, 허리 벨트의 Android 폰 P. (b) 폰 3대 시연에서 G1이 조작자를 따라 T자 자세를 취한 장면. 얼굴은 흐리게 처리했습니다.">Paper Fig. 2. (a) Phone placement seen from behind: iOS phones L and R in the hands, Android phone P on the belt. (b) Three-phone demonstration: the G1 follows the operator into a T-pose. Faces blurred.</figcaption>
+  </figure>
+</section>
+
+<section id="elbow">
+  <h2 data-ko="AR 손 위치로 팔꿈치 정하기 (식 3)">Elbow from the AR hand position (Eq. 3)</h2>
+  <p class="sub" data-ko="손에 든 폰의 IMU만으로는 팔꿈치 위치가 정해지지 않습니다. 폰 AR이 추적한 손목 위치와 IMUCoCo가 추정한 어깨 사이의 거리 d가 팔꿈치 굽힘 θ를 정하고, 팔꿈치는 어깨–손목 축 둘레의 원 위에 놓입니다. 원 위의 위치(swivel 각 φ)는 IMU 추정에서 가져옵니다. 손목 점을 끌거나 φ를 바꿔 보세요. 팔 길이는 설명용 값입니다.">Hand-held IMUs leave the elbow position undetermined. The distance d between the wrist, tracked by the phone's AR, and the shoulder, estimated by IMUCoCo, fixes the elbow flexion θ; the elbow then lies on a circle around the shoulder–wrist axis, and its place on that circle (the swivel angle φ) comes from the IMU estimate. Drag the wrist or change φ. Arm lengths are illustrative.</p>
+  <div class="split">
+    <div class="card elbow">
+      <canvas id="elbowcv" aria-label="Elbow swivel geometry"></canvas>
+      <div class="elbowctl">
+        <label><span data-ko="swivel φ">swivel φ</span><input id="phi" type="range" min="-180" max="180" value="20"><output id="phiv">20°</output></label>
+        <label><span data-ko="거리 d">distance d</span><input id="dist" type="range" min="10" max="54" value="40"><output id="distv"></output></label>
+        <label><span data-ko="굽힘 θ">flexion θ</span><span></span><output id="thetav"></output></label>
+      </div>
+    </div>
+    <div>
+      <div class="eq">θ = arccos( (d² − l<sub>u</sub>² − l<sub>f</sub>²) / (2 l<sub>u</sub> l<sub>f</sub>) ),&nbsp; d = ‖p<sub>w</sub> − p<sub>s</sub>‖</div>
+      <p class="sub" data-ko="실물 실행은 IMU 경로만 썼고, 이 AR 결합은 녹화한 한 팔 개발 데이터 3건의 사후 재생에서만 평가했습니다(예비 결과). 팔 고도각 오차는 3건 중 2건에서 줄었고, 손목 jerk p95는 1.3–3.3배 늘어 사전에 정한 10% 한도를 넘었습니다.">The robot runs used the IMU path only. This AR coupling was evaluated offline, by replaying three one-arm development recordings (preliminary). The arm-elevation error fell in two of the three; wrist jerk p95 rose 1.3- to 3.3-fold, above the 10% bound fixed in advance.</p>
+      <div class="card tablewrap">
+        <table>
+          <thead><tr><th data-ko="녹화">Rec.</th><th data-ko="조건">Condition</th><th data-ko="고도각 오차 (°)">Elev. error (°)</th><th data-ko="jerk p95 팔꿈치 / 손목 (m/s³)">Jerk p95 elbow / wrist (m/s³)</th></tr></thead>
+          <tbody id="t1"></tbody>
+        </table>
+      </div>
+      <p class="note" data-ko="값은 data/one-arm-replay/metrics.csv에서 반올림했습니다. 2 (recomp.)는 녹화 당시 거부된 AR 입력을 같은 타임스탬프에서 다시 계산한 경우입니다.">Values are rounded from data/one-arm-replay/metrics.csv. "2 (recomp.)" uses the AR input recomputed at the same timestamps after it had been rejected during recording.</p>
+    </div>
+  </div>
+</section>
+
+<section id="data">
+  <h2 data-ko="공개한 실험 기록">Published experiment logs</h2>
+  <p class="sub" data-ko="폰 식별자, 내부 IP, 노트북 경로만 가명으로 바꿨고 측정값과 타임스탬프는 그대로입니다. 얼굴이 나온 영상은 넣지 않았습니다.">Only phone identifiers, private IP addresses and laptop paths were replaced by placeholders; measurements and timestamps are as recorded. Videos showing faces are not included.</p>
+  <div class="files">
+    <div class="card file">
+      <h3 data-ko="2차 시연 · 폰 3대 (11/22)">2nd demonstration · three phones (11/22)</h3>
+      <p data-ko="폰 원시 패킷, 프레임별 추정과 G1 목표, SONIC 전송 기록, 컨트롤러 로그. 이 페이지와 Fig. 3의 원본입니다.">Raw phone packets, per-frame estimates and G1 targets, SONIC transmission record, controller log. Source of this replay and Fig. 3.</p>
+      <a href="https://github.com/sesepark/smartphone-g1-teleop/tree/main/data/runs/20261122-174632-live-three-phone-dev">data/runs/20261122-174632-…</a>
+    </div>
+    <div class="card file">
+      <h3 data-ko="1차 시연 · 오른손 폰 1대 (11/21)">1st demonstration · one phone, right hand (11/21)</h3>
+      <p data-ko="폰 원시 패킷, 프레임별 지연과 G1 팔 목표, 컨트롤러 로그, 앱을 닫은 뒤의 자동 정지(0.976 s) 기록.">Raw phone packets, per-frame latency and G1 arm targets, controller logs and the automatic stop 0.976 s after the app was closed.</p>
+      <a href="https://github.com/sesepark/smartphone-g1-teleop/tree/main/data/runs/20261121-215716-g1-supported-one-iphone">data/runs/20261121-215716-…</a>
+    </div>
+    <div class="card file">
+      <h3 data-ko="한 팔 AR 재생 결과 (Table 1)">One-arm AR replay (Table 1)</h3>
+      <p data-ko="세 녹화 × 조건별 지표. 원본 녹화 3건은 이 저장소에 없습니다.">Metrics per recording and condition. The three source recordings are not in this repository.</p>
+      <a href="https://github.com/sesepark/smartphone-g1-teleop/tree/main/data/one-arm-replay">data/one-arm-replay</a>
+    </div>
+  </div>
+  <p class="note" data-ko="논문의 수치를 다시 계산하려면 저장소를 받은 뒤 아래 명령을 실행합니다. Python 3 표준 라이브러리만 씁니다.">To recompute the paper's numbers, clone the repository and run the command below. It uses the Python 3 standard library only.</p>
+  <pre>git clone https://github.com/sesepark/smartphone-g1-teleop
+cd smartphone-g1-teleop
+python3 tools/check_paper_numbers.py</pre>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p data-ko="G1 형상: Unitree Robotics의 unitree_mujoco 메시를 단순화(BSD-3-Clause). 사람 자세 모델: IMUCoCo(GPL-3.0), 전신 정책: NVIDIA SONIC. 이 페이지의 코드는 GPL-3.0, 기록 데이터는 CC BY 4.0입니다.">G1 geometry: simplified meshes from Unitree Robotics' unitree_mujoco (BSD-3-Clause). Human pose model: IMUCoCo (GPL-3.0); whole-body policy: NVIDIA SONIC. Page code is GPL-3.0 and the recorded data CC BY 4.0.</p>
+  </div>
+</footer>
+
+<script src="assets/vendor/g1-mesh-data.js"></script>
+<script src="assets/vendor/g1-mesh.js"></script>
+<script src="assets/replay.js"></script>
+</body>
+</html>

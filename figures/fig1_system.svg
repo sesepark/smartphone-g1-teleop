@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 750" width="800" height="750" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#222"/>
+    </marker>
+    <marker id="arrowd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="800" height="750" fill="#ffffff"/>
+
+  <!-- headers -->
+  <text x="8" y="26" font-size="25" font-weight="bold" fill="#222">Real-time path (robot)</text>
+  <text x="462" y="26" font-size="25" font-weight="bold" fill="#444">Offline only (Sec. 5)</text>
+
+  <!-- left column: real-time path -->
+  <rect x="8" y="40" width="420" height="104" rx="9" fill="#f4f6f8" stroke="#222" stroke-width="2.5"/>
+  <text x="218" y="80" font-size="28" font-weight="bold" text-anchor="middle">Phones (IMU)</text>
+  <text x="218" y="120" font-size="25" text-anchor="middle">2 iOS (hands), 1 Android (belt)</text>
+
+  <rect x="8" y="180" width="420" height="104" rx="9" fill="#f4f6f8" stroke="#222" stroke-width="2.5"/>
+  <text x="218" y="220" font-size="28" font-weight="bold" text-anchor="middle">Sync &amp; calibrate</text>
+  <text x="218" y="260" font-size="25" text-anchor="middle">clock unc. ≤ 20 ms, floor + T-pose</text>
+
+  <rect x="8" y="320" width="420" height="104" rx="9" fill="#e8eef6" stroke="#222" stroke-width="2.5"/>
+  <text x="218" y="360" font-size="28" font-weight="bold" text-anchor="middle">IMUCoCo</text>
+  <text x="218" y="400" font-size="25" text-anchor="middle">public weights, laptop GPU</text>
+
+  <rect x="8" y="460" width="420" height="104" rx="9" fill="#f4f6f8" stroke="#222" stroke-width="2.5"/>
+  <text x="218" y="500" font-size="28" font-weight="bold" text-anchor="middle">G1 direction IK</text>
+  <text x="218" y="540" font-size="25" text-anchor="middle">arms only, ≤ 4 rad/s</text>
+
+  <rect x="8" y="600" width="420" height="104" rx="9" fill="#e8eef6" stroke="#222" stroke-width="2.5"/>
+  <text x="218" y="640" font-size="28" font-weight="bold" text-anchor="middle">SONIC → G1</text>
+  <text x="218" y="680" font-size="25" text-anchor="middle">50 Hz, gantry</text>
+
+  <line x1="218" y1="144" x2="218" y2="176" stroke="#222" stroke-width="3.5" marker-end="url(#arrow)"/>
+  <line x1="218" y1="284" x2="218" y2="316" stroke="#222" stroke-width="3.5" marker-end="url(#arrow)"/>
+  <line x1="218" y1="424" x2="218" y2="456" stroke="#222" stroke-width="3.5" marker-end="url(#arrow)"/>
+  <line x1="218" y1="564" x2="218" y2="596" stroke="#222" stroke-width="3.5" marker-end="url(#arrow)"/>
+
+  <!-- right column: offline AR branch -->
+  <rect x="462" y="40" width="330" height="92" rx="9" fill="#ffffff" stroke="#555" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text x="627" y="78" font-size="27" font-weight="bold" text-anchor="middle" fill="#333">Phone AR pose</text>
+  <text x="627" y="114" font-size="24" text-anchor="middle" fill="#333">ARCore, left hand</text>
+
+  <rect x="462" y="166" width="330" height="92" rx="9" fill="#ffffff" stroke="#555" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text x="627" y="204" font-size="27" font-weight="bold" text-anchor="middle" fill="#333">Yaw filter</text>
+  <text x="627" y="240" font-size="24" text-anchor="middle" fill="#333">time constant τ</text>
+
+  <rect x="462" y="292" width="330" height="92" rx="9" fill="#ffffff" stroke="#555" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text x="627" y="330" font-size="27" font-weight="bold" text-anchor="middle" fill="#333">Elbow IK</text>
+  <text x="627" y="366" font-size="24" text-anchor="middle" fill="#333">hand position, Eq. (3)</text>
+
+  <line x1="627" y1="132" x2="627" y2="162" stroke="#555" stroke-width="3.5" stroke-dasharray="8 5" marker-end="url(#arrowd)"/>
+  <line x1="627" y1="258" x2="627" y2="288" stroke="#555" stroke-width="3.5" stroke-dasharray="8 5" marker-end="url(#arrowd)"/>
+  <polyline points="627,384 627,440 232,440" fill="none" stroke="#555" stroke-width="3.5" stroke-dasharray="8 5" marker-end="url(#arrowd)"/>
+  <polyline points="462,212 445,212 445,300 232,300" fill="none" stroke="#555" stroke-width="3.5" stroke-dasharray="8 5" marker-end="url(#arrowd)"/>
+  <line x1="428" y1="372" x2="458" y2="350" stroke="#555" stroke-width="3.5" stroke-dasharray="8 5" marker-end="url(#arrowd)"/>
+
+  <!-- stop chain -->
+  <rect x="462" y="500" width="330" height="236" rx="9" fill="#fbeeee" stroke="#a33" stroke-width="2.5"/>
+  <text x="478" y="540" font-size="26" font-weight="bold" fill="#7a1f1f">Auto stop</text>
+  <text x="478" y="580" font-size="24" fill="#7a1f1f">frame gap &gt; 0.2 s</text>
+  <text x="478" y="618" font-size="24" fill="#7a1f1f">→ estimate reset</text>
+  <text x="478" y="656" font-size="24" fill="#7a1f1f">→ transmission paused</text>
+  <text x="478" y="694" font-size="24" fill="#7a1f1f">→ 0.5 s watchdog → stop</text>
+  <line x1="462" y1="652" x2="432" y2="652" stroke="#a33" stroke-width="3"/>
+</svg>

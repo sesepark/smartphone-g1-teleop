@@ -1,0 +1,3 @@
+Studio: http://127.0.0.1:8765 | Session: ~/shape-msi/runs-1121/20261121-215716-g1-supported-one-iphone/recording
+Collector settings: PC address <lan-ip-1> | UDP port 9002
+Live SONIC: tcp://127.0.0.1:5556 | causal delay 0.350s | subscriber unacknowledged

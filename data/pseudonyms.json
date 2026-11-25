@@ -1,0 +1,21 @@
+{
+  "note": "Original identifiers are withheld; only the pseudonym list and counts are published.",
+  "identifiers": [
+    "android-ar-ref-pelvis",
+    "android-device-pelvis",
+    "android-session-pelvis",
+    "ios-ar-ref-left-arm",
+    "ios-ar-ref-right-arm",
+    "ios-device-left-arm",
+    "ios-device-right-arm",
+    "ios-session-left-arm",
+    "ios-session-left-arm-2",
+    "ios-session-right-arm",
+    "ios-session-right-arm-2",
+    "ios-session-right-arm-3"
+  ],
+  "lan_ip_placeholders": [
+    "<lan-ip-1>",
+    "<lan-ip-2>"
+  ]
+}

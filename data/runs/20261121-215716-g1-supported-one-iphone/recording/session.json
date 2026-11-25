@@ -1,0 +1,420 @@
+{
+  "created_utc": "2026-11-21T12:57:21.418620+00:00",
+  "config": {
+    "fps": 60,
+    "buffer_seconds": 0.1,
+    "max_gap_seconds": 0.2,
+    "max_clock_uncertainty": 0.02,
+    "tracking_scope": "arms",
+    "calibration": "three_phone_desk_tpose",
+    "streams": {
+      "right_arm": {
+        "joint": 21,
+        "position": [
+          -0.77168,
+          0.485731,
+          -0.074442
+        ]
+      }
+    },
+    "g1_target_scope": "arms",
+    "clock_filter": "window",
+    "late_input_wait": true
+  },
+  "model": {
+    "backend": "imucoco",
+    "learned": true,
+    "device": "cuda",
+    "geometry": "checkpoint_probes_approximate_skeleton",
+    "translation": "learned_contact_velocity_estimate",
+    "checkpoint_load": [
+      {
+        "missing": [],
+        "unexpected": []
+      }
+    ],
+    "checkpoints": {
+      "imucoco_best": "a560a41324cff005c3cec88bf7b579de9cecd18fe3e67eae7def70cf6d60fb13",
+      "all_error_loss_map": "a6b25986f4232d1dba5e815eb8537cc8e501eff3ea9dacd5d26c7867d828cf30",
+      "poser_dtp_best": "9bf8412c0cd1d5e938530d9d92503c6ae9b5c86c592f34ba57edaa4c96068629"
+    },
+    "smpl_sha256": null,
+    "upstream_commit": "d7dd17c70abccfc63935ce9e25452c6d312df630",
+    "placement": {
+      "right_arm": {
+        "joint": 21,
+        "position": [
+          -0.77168,
+          0.485731,
+          -0.074442
+        ]
+      }
+    },
+    "joint_rest_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.10203278064727783,
+        -0.09,
+        -0.0019254162907600403
+      ],
+      [
+        -0.10356635600328445,
+        -0.09,
+        -0.0036771148443222046
+      ],
+      [
+        0.0044639455154538155,
+        0.13117997348308563,
+        -0.0057824477553367615
+      ],
+      [
+        0.10203278064727783,
+        -0.4687495231628418,
+        -0.009627081453800201
+      ],
+      [
+        -0.10356635600328445,
+        -0.47420114278793335,
+        -0.018385574221611023
+      ],
+      [
+        0.008927891030907631,
+        0.26235994696617126,
+        -0.011564895510673523
+      ],
+      [
+        0.08724244683980942,
+        -0.8956239223480225,
+        -0.04705507308244705
+      ],
+      [
+        -0.08451081067323685,
+        -0.8942466974258423,
+        -0.05294724553823471
+      ],
+      [
+        0.0066633024252951145,
+        0.3183923363685608,
+        -0.008709847927093506
+      ],
+      [
+        0.12829680740833282,
+        -0.9559098482131958,
+        0.07498734444379807
+      ],
+      [
+        -0.11935068666934967,
+        -0.9563523530960083,
+        0.07737604528665543
+      ],
+      [
+        -0.006726881954818964,
+        0.5300278663635254,
+        -0.04217742756009102
+      ],
+      [
+        0.09728014166466892,
+        0.5038124918937683,
+        -0.04441572353243828
+      ],
+      [
+        -0.09812277113087475,
+        0.5038729012012482,
+        -0.04153336584568024
+      ],
+      [
+        0.0033863293938338757,
+        0.6189652681350708,
+        0.00823243334889412
+      ],
+      [
+        0.2012871652841568,
+        0.47759711742401123,
+        -0.04665401950478554
+      ],
+      [
+        -0.18951866030693054,
+        0.47771793603897095,
+        -0.040889304131269455
+      ],
+      [
+        0.4566190242767334,
+        0.46194809675216675,
+        -0.06960050761699677
+      ],
+      [
+        -0.44964614510536194,
+        0.4633486568927765,
+        -0.07215803116559982
+      ],
+      [
+        0.7223283052444458,
+        0.4746462106704712,
+        -0.07697524130344391
+      ],
+      [
+        -0.7187545895576477,
+        0.4701423645019531,
+        -0.07818479835987091
+      ],
+      [
+        0.8090188503265381,
+        0.46401017904281616,
+        -0.09256953746080399
+      ],
+      [
+        -0.8075083494186401,
+        0.46149080991744995,
+        -0.08829187601804733
+      ]
+    ],
+    "parents": [
+      -1,
+      0,
+      0,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      9,
+      9,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "tracking_scope": "arms",
+    "active_joint_mask": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true
+    ],
+    "observed_streams": [
+      "right_arm"
+    ],
+    "untracked_policy": "neutral_local_rotation",
+    "confidence": "unmeasured_sparse_input"
+  },
+  "robot": {
+    "robot": "unitree_g1_29dof",
+    "solver": "bounded_damped_least_squares_direction_ik",
+    "scope": "arms",
+    "model_sha256": "71c812975380080e790b7c51920691b437d19288ca9e303e02c2c1086f456a42",
+    "joint_names": [
+      "left_hip_pitch_joint",
+      "left_hip_roll_joint",
+      "left_hip_yaw_joint",
+      "left_knee_joint",
+      "left_ankle_pitch_joint",
+      "left_ankle_roll_joint",
+      "right_hip_pitch_joint",
+      "right_hip_roll_joint",
+      "right_hip_yaw_joint",
+      "right_knee_joint",
+      "right_ankle_pitch_joint",
+      "right_ankle_roll_joint",
+      "waist_yaw_joint",
+      "waist_roll_joint",
+      "waist_pitch_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint",
+      "left_wrist_roll_joint",
+      "left_wrist_pitch_joint",
+      "left_wrist_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint",
+      "right_wrist_roll_joint",
+      "right_wrist_pitch_joint",
+      "right_wrist_yaw_joint"
+    ],
+    "quaternion": "wxyz",
+    "root_frame": "x_forward_y_left_z_up",
+    "active_joint_mask": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true
+    ],
+    "enabled_limbs": {
+      "left_arm": false,
+      "left_leg": false,
+      "right_arm": true,
+      "right_leg": false
+    },
+    "max_joint_speed_rad_s": 4.0,
+    "body_names": [
+      "pelvis",
+      "left_hip_pitch_link",
+      "left_hip_roll_link",
+      "left_hip_yaw_link",
+      "left_knee_link",
+      "left_ankle_pitch_link",
+      "left_ankle_roll_link",
+      "right_hip_pitch_link",
+      "right_hip_roll_link",
+      "right_hip_yaw_link",
+      "right_knee_link",
+      "right_ankle_pitch_link",
+      "right_ankle_roll_link",
+      "waist_yaw_link",
+      "waist_roll_link",
+      "torso_link",
+      "left_shoulder_pitch_link",
+      "left_shoulder_roll_link",
+      "left_shoulder_yaw_link",
+      "left_elbow_link",
+      "left_wrist_roll_link",
+      "left_wrist_pitch_link",
+      "left_wrist_yaw_link",
+      "right_shoulder_pitch_link",
+      "right_shoulder_roll_link",
+      "right_shoulder_yaw_link",
+      "right_elbow_link",
+      "right_wrist_roll_link",
+      "right_wrist_pitch_link",
+      "right_wrist_yaw_link"
+    ],
+    "body_parents": [
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      0,
+      7,
+      8,
+      9,
+      10,
+      11,
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      15,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "kinematic_only": true,
+    "hardware_ready": false,
+    "home_joint_pos": [
+      -0.1,
+      0.0,
+      0.0,
+      0.25,
+      -0.15,
+      0.0,
+      -0.1,
+      0.0,
+      0.0,
+      0.25,
+      -0.15,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "arm_escape": {
+      "error_deg": 15.0,
+      "gain_deg": 5.0,
+      "after_seconds": 0.5,
+      "speed_rad_s": 1.0,
+      "seed": "home"
+    },
+    "arm_target_filter": {
+      "method": "one_euro",
+      "minimum_cutoff_hz": 1.0,
+      "derivative_cutoff_hz": 1.0,
+      "beta": 0.5
+    }
+  },
+  "sensor_units": "m/s2",
+  "pose_units": "radians",
+  "quaternion": "xyzw sensor-to-native-world",
+  "note": "No physical sensor accuracy validation; estimated human motion only."
+}

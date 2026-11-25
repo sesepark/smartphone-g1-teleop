@@ -1,0 +1,84 @@
+{
+  "endpoint": "tcp://127.0.0.1:5556",
+  "delay_seconds": 0.35,
+  "published": 38899,
+  "reason": "stale right_arm",
+  "last_send_monotonic": 10306.26766407,
+  "reference_time": 10305.917664069999,
+  "estimate_age_seconds": null,
+  "buffered_seconds": 0.0,
+  "current_pause": {
+    "start_monotonic": 10306.26766407,
+    "first_reason": "live estimate stale; publishing paused",
+    "last_reason": "stale right_arm",
+    "seconds": 64560.839904329005
+  },
+  "recent_pauses": [
+    {
+      "start_monotonic": 9107.735394777,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "live estimate stale; publishing paused",
+      "end_monotonic": 9107.906502179,
+      "seconds": 0.1711074019985972
+    },
+    {
+      "start_monotonic": 9161.18935634,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "live estimate stale; publishing paused",
+      "end_monotonic": 9161.367523808,
+      "seconds": 0.17816746799871908
+    },
+    {
+      "start_monotonic": 9214.994082707,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "live estimate stale; publishing paused",
+      "end_monotonic": 9215.126178283,
+      "seconds": 0.1320955760002107
+    },
+    {
+      "start_monotonic": 9327.171906834,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "live estimate stale; publishing paused",
+      "end_monotonic": 9327.321804212,
+      "seconds": 0.1498973779998778
+    },
+    {
+      "start_monotonic": 9339.562081553,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "buffering causal reference horizon",
+      "end_monotonic": 9848.079477992,
+      "seconds": 508.51739643899964
+    },
+    {
+      "start_monotonic": 9956.628567269,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "live estimate stale; publishing paused",
+      "end_monotonic": 9956.670185861,
+      "seconds": 0.04161859200030449
+    },
+    {
+      "start_monotonic": 10208.375888078,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "buffering causal reference horizon",
+      "end_monotonic": 10208.755372415,
+      "seconds": 0.379484336999667
+    },
+    {
+      "start_monotonic": 10208.875346549,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "buffering causal reference horizon",
+      "end_monotonic": 10209.340468683,
+      "seconds": 0.4651221339991025
+    },
+    {
+      "start_monotonic": 10209.361679456,
+      "first_reason": "live estimate stale; publishing paused",
+      "last_reason": "buffering causal reference horizon",
+      "end_monotonic": 10209.801460003,
+      "seconds": 0.4397805469998275
+    }
+  ],
+  "pause_count": 9,
+  "hardware_executed": false,
+  "subscriber_acknowledged": false
+}
