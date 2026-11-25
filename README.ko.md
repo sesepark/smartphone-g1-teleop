@@ -8,7 +8,7 @@ KRoC 2027 투고 논문 「손에 든 스마트폰으로 G1 휴머노이드 상�
 - **담은 것:** 실물 시연 두 건의 기록(식별 정보만 가명 처리), 폰 3대 실행의 웹 재생, 논문 그림, 기록에서 논문 수치를 다시 계산하는 스크립트
 - **기술:** 폰 IMU(iOS·Android), IMUCoCo 자세 추정, G1 29자유도 방향 IK, NVIDIA SONIC 전신 정책
 
-**브라우저에서 보기: [sesepark.github.io/smartphone-g1-teleop](https://sesepark.github.io/smartphone-g1-teleop/)**
+**브라우저에서 보기: [sesepark.github.io/smartphone-g1-teleop](https://sesepark.github.io/smartphone-g1-teleop/)** · **논문: [PDF](paper/KRoC2027_handheld_smartphone_G1_teleoperation.pdf)**
 
 ![실물 G1 폰 3대 실행의 웹 재생](figures/web-replay.jpg)
 
@@ -102,6 +102,7 @@ uv run --no-project --with numpy --with matplotlib python tools/fig3_run7_timeli
 
 | 문서 | 내용 |
 | --- | --- |
+| [paper/](paper/README.md) | 투고 원고(PDF, 한국어 본문·영문 초록) |
 | [EVIDENCE.md](EVIDENCE.md) | 논문의 수치·설정과 그 근거 파일, 검사 항목 |
 | [data/README.md](data/README.md) | 파일 형식, 11/22 실행 목록, 가명 처리한 항목 |
 | [data/one-arm-replay/README.md](data/one-arm-replay/README.md) | Table 1의 조건과 열 설명 |
@@ -135,4 +136,4 @@ uv run --no-project --with numpy --with matplotlib python tools/fig3_run7_timeli
 
 ## 라이선스
 
-`tools/`와 `docs/`의 코드는 GPL-3.0([LICENSE](LICENSE)), 실험 기록과 그림은 CC BY 4.0([data/LICENSE.md](data/LICENSE.md))입니다. 웹 재생의 G1 메시는 Unitree의 BSD-3-Clause를 따릅니다([THIRD_PARTY.md](THIRD_PARTY.md)).
+코드는 GPL-3.0([LICENSE](LICENSE)), `data/`와 `docs/data/`의 실험 기록은 CC BY 4.0입니다. 논문과 그림은 저자에게 저작권이 있으며 재사용을 허락하지 않습니다. G1 메시는 Unitree의 BSD-3-Clause를 따릅니다. 자세한 내용은 [data/LICENSE.md](data/LICENSE.md)에 있습니다.

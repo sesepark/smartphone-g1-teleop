@@ -54,4 +54,4 @@ Code versions are commits of the team's private repository. The paper describes 
 
 ## License
 
-CC BY 4.0, see [LICENSE.md](LICENSE.md). Please cite the paper when you use the data.
+CC BY 4.0, see [LICENSE.md](LICENSE.md), which also lists the licenses of the code, the paper and the figures. Please cite the paper when you use the data.

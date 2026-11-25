@@ -8,7 +8,7 @@ Logs, figures and a browser replay for the KRoC 2027 paper *Hand-Held Smartphone
 - **What is here:** sanitized logs of the two real-robot demonstrations, a web replay of the three-phone run, the paper's figures and a script that recomputes the paper's numbers from the logs
 - **Stack:** phone IMU (iOS, Android), IMUCoCo pose estimation, direction IK for the 29-DoF G1, NVIDIA SONIC whole-body policy
 
-**Try it in the browser: [sesepark.github.io/smartphone-g1-teleop](https://sesepark.github.io/smartphone-g1-teleop/)**
+**Try it in the browser: [sesepark.github.io/smartphone-g1-teleop](https://sesepark.github.io/smartphone-g1-teleop/)** · **Paper: [PDF](paper/KRoC2027_handheld_smartphone_G1_teleoperation.pdf)**
 
 ![Web replay of the three-phone run on the real G1](figures/web-replay.jpg)
 
@@ -102,6 +102,7 @@ uv run --no-project --with numpy --with matplotlib python tools/fig3_run7_timeli
 
 | Document | Contents |
 | --- | --- |
+| [paper/](paper/README.md) | the submitted manuscript (PDF, Korean with an English abstract) |
 | [EVIDENCE.md](EVIDENCE.md) | every number and setting in the paper, with its source file and check |
 | [data/README.md](data/README.md) | file formats, the run list of 2026-11-22, what was cleaned |
 | [data/one-arm-replay/README.md](data/one-arm-replay/README.md) | conditions and columns of Table 1 |
@@ -135,4 +136,4 @@ uv run --no-project --with numpy --with matplotlib python tools/fig3_run7_timeli
 
 ## License
 
-Code in `tools/` and `docs/` is GPL-3.0 ([LICENSE](LICENSE)); the recorded data and figures are CC BY 4.0 ([data/LICENSE.md](data/LICENSE.md)). The G1 meshes in the web replay keep Unitree's BSD-3-Clause license ([THIRD_PARTY.md](THIRD_PARTY.md)).
+Code is GPL-3.0 ([LICENSE](LICENSE)). The recorded data in `data/` and `docs/data/` is CC BY 4.0. The paper and its figures remain © the authors, all rights reserved. The G1 meshes keep Unitree's BSD-3-Clause license. Details: [data/LICENSE.md](data/LICENSE.md).
